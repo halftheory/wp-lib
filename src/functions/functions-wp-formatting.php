@@ -237,7 +237,7 @@ if ( ! function_exists('get_excerpt') ) {
 		$args = wp_parse_args_recursive($args, $defaults, array( 'allowed_tags', 'replace_tags' ));
 
 		$regex_patterns = array(
-			'email' => '([.0-9a-z_+-]+)@(([0-9a-z-]+\.)+[0-9a-z]{2,})',
+			'email' => '[.0-9a-z_+-]+@[0-9a-z-]+\.+[0-9a-z]{2,}',
 			'last_character' => '\w' . preg_quote(':;@&%=+$?_.-#/>)»', '/'),
 			'space' => '[\s]*',
 			'tag_open' => '<[\w]+[^>]*>',
@@ -301,7 +301,7 @@ if ( ! function_exists('get_excerpt') ) {
 					if ( ! $value ) {
 						break;
 					}
-					$string = preg_replace('/' . preg_quote($regex_patterns['email'], '/') . $regex_patterns['space'] . '/is', '', $string);
+					$string = preg_replace('/' . $regex_patterns['email'] . $regex_patterns['space'] . '/s', '', $string);
 					break;
 
 				case 'url':
