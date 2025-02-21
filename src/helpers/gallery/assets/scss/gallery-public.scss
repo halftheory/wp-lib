@@ -1,0 +1,159 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.gallery {
+    margin-bottom: l.$spacer * 2;
+
+	.gallery-item {
+		vertical-align: top;
+		margin: 0;
+        text-align: center;
+
+		.gallery-icon {
+            height: 100%;
+            overflow: hidden;
+
+			> a {
+				display: inline;
+				border: 0;
+				outline: 0;
+				line-height: 0;
+				&:link,
+				&:visited,
+				&:hover,
+				&:focus,
+				&:active {
+					border: 0;
+					outline: 0;
+				}
+			}
+
+			img {
+                object-fit: cover;
+                width: 100%;
+                height: 100%;
+			}
+		}
+	}
+
+	.gallery-caption {
+		display: block;
+		margin: 0;
+		padding: #{l.$spacer * math-div(1,3)};
+	}
+
+	&.gallery-columns-{
+	    &1,
+	    &2,
+	    &3,
+	    &4,
+	    &5,
+	    &6,
+	    &7,
+	    &8,
+	    &9 {
+	        display: grid;
+	        grid-auto-flow: row;
+	        gap: l.$spacer;
+	        grid-template-columns: repeat(1, minmax(0, 1fr));
+	    }
+	    &1 {
+	        grid-template-columns: repeat(1, minmax(0, 1fr));
+	    }
+	    &2 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	    }
+	    &3 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(3, minmax(0, 1fr));
+	        }
+	    }
+	    &4 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(3, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(4, minmax(0, 1fr));
+	        }
+	    }
+	    &5 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(3, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(4, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(xl) {
+	            grid-template-columns: repeat(5, minmax(0, 1fr));
+	        }
+	    }
+	    &6 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(3, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(4, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(xl) {
+	            grid-template-columns: repeat(6, minmax(0, 1fr));
+	        }
+	    }
+	    &7 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(3, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(5, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(xl) {
+	            grid-template-columns: repeat(7, minmax(0, 1fr));
+	        }
+	    }
+	    &8 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(4, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(6, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(xl) {
+	            grid-template-columns: repeat(8, minmax(0, 1fr));
+	        }
+	    }
+	    &9 {
+	        @include l.breakpoint(sm) {
+	            grid-template-columns: repeat(2, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(md) {
+	            grid-template-columns: repeat(4, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(lg) {
+	            grid-template-columns: repeat(6, minmax(0, 1fr));
+	        }
+	        @include l.breakpoint(xl) {
+	            grid-template-columns: repeat(9, minmax(0, 1fr));
+	        }
+	    }
+	}
+}

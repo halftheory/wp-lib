@@ -1,0 +1,16 @@
+@use 'sass' as *;
+@use 'variables' as v;
+
+@function make-time($value, $unit: 's') {
+	@if meta-type-of($value) == 'number' and not math-compatible($value, 1s) and not math-compatible($value, 1ms) {
+		$value: #{strip-unit($value)}#{$unit};
+	}
+	@return $value;
+}
+
+@function strip-unit($value) {
+	@if meta-type-of($value) == 'number' and not math-is-unitless($value) {
+		$value: math-div($value, $value * 0 + 1);
+	}
+	@return $value;
+}
