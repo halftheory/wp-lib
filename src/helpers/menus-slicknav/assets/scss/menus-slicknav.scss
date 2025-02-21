@@ -1,0 +1,42 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.slicknav_menu {
+	text-align: left;
+	display: block;
+	@include l.breakpoint(md) {
+		display: none;
+	}
+}
+.slicknav_brand {
+	color: #fff;
+	@include l.link {
+		color: #fff;
+		text-decoration: none;
+	}
+	@include l.hover {
+		color: #fff;
+		text-decoration: underline;
+	}
+}
+.slicknav_nav {
+	@include l.link {
+		color: #fff;
+		text-decoration: none;
+	}
+	@include l.hover {
+		color: #222;
+		text-decoration: none;
+	}
+	.slicknav_arrow {
+		color: #fff;
+	}
+}
+
+.nav-slicknav {
+	display: none;
+	@include l.breakpoint(md) {
+		display: block;
+	}
+}

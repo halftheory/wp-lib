@@ -1,0 +1,84 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.gallery {
+    &.#{l.$handle}-carousel {
+        display: grid;
+        gap: 0 !important;
+
+        &.#{l.$handle}-gap-{
+            @for $i from 0 through 9 {
+                &#{$i} {
+                    .slick-slide img {
+                        padding: 0 #{l.$spacer * math-div($i,2)};
+                    }
+                }
+            }
+        }
+
+        @include l.breakpoint(md) {
+            &.#{l.$handle}-extend-width-{
+                &3-5 {
+                    $w: math-percentage(math-div(3,5));
+                    .slick-list {
+                        width: $w * 2;
+                    }
+                    .slick-dots {
+                        width: $w;
+                    }
+                }
+                &2-3 {
+                    $w: math-percentage(math-div(2,3));
+                    .slick-list {
+                        width: $w * 2;
+                    }
+                    .slick-dots {
+                        width: $w;
+                    }
+                }
+                &3-4 {
+                    $w: math-percentage(math-div(3,4));
+                    .slick-list {
+                        width: $w * 2;
+                    }
+                    .slick-dots {
+                        width: $w;
+                    }
+                }
+                &4-5 {
+                    $w: math-percentage(math-div(4,5));
+                    .slick-list {
+                        width: $w * 2;
+                    }
+                    .slick-dots {
+                        width: $w;
+                    }
+                }
+            }
+        }
+
+        // 'light' mode
+        .slick-prev,
+        .slick-next {
+            &:before {
+                color: #000;
+                opacity: 0.2;
+                @include l.transition(opacity);
+            }
+            &:hover,
+            &:focus {
+                border: 0;
+                &:before {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .gallery-caption {
+            text-align: center;
+            margin-top: #{l.$spacer * math-div(1,2)};
+            padding: 0;
+        }
+    }
+}

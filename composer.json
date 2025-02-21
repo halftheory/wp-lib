@@ -1,0 +1,21 @@
+{
+    "name": "halftheory/wp-lib",
+    "version": "1.0.0",
+    "type": "library",
+    "description": "Composer repository.",
+    "homepage": "https://github.com/halftheory/wp-lib",
+    "authors": [
+        {
+            "name": "Half/theory",
+            "email": "noreply@halftheory.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Halftheory\\Lib\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    }
+}

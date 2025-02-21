@@ -1,0 +1,27 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.sm-navbar {
+	margin: 0;
+	padding: 0;
+
+	&[class*="sm-navbar--offcanvas"] .sm-toggler,
+	div.sm-toggler {
+		display: none
+	}
+
+	.sm-offcanvas {
+		.sm-offcanvas-title {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.sm-brand {
+			img {
+				vertical-align: middle;
+				margin-right: (l.$spacer * .5);
+			}
+		}
+	}
+}
