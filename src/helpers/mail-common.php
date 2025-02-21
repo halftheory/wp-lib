@@ -99,6 +99,4 @@ class Mail_Common extends Filters {
 		}
 		return ht_antispambot($text);
 	}
-
-	// Admin.
 }

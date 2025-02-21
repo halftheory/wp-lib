@@ -37,7 +37,7 @@ class Video_Common extends Filters {
 		if ( did_filter('wp_video_shortcode_override') === 0 && did_filter('wp_video_shortcode_library') === 0 && did_filter('wp_video_shortcode_class') === 0 && did_filter('wp_video_shortcode') === 0 ) {
 			return;
 		}
-		// Load CSS.
+		// CSS.
 		if ( ! wp_style_is(static::$handle) ) {
 			$file = __DIR__ . '/assets/css/video-public.css';
 			if ( $url = get_stylesheet_uri_from_file($file) ) {
