@@ -1,8 +1,6 @@
 <?php
 namespace Halftheory\Lib;
 
-use Halftheory\Lib\Core;
-
 #[AllowDynamicProperties]
 abstract class Theme extends Core {
 
@@ -14,14 +12,14 @@ abstract class Theme extends Core {
 		// Exit if accessed directly.
 		defined('ABSPATH') || exit(get_called_class());
 		// Load.
-		$this->load_functions(array( 'php', 'wp' ));
+		$this->load_functions('php,wp-load,wp-theme');
 		set_encoding(get_bloginfo('charset'));
 		parent::__construct($autoload);
 	}
 
 	protected function set_handle( $handle = null ) {
 		static::$handle = $handle ? $handle : static::$handle;
-		if ( is_null(static::$handle) ) {
+		if ( $this->is_theme_active() && is_null(static::$handle) ) {
 			if ( $tmp = ht_get_theme_data('TextDomain') ) {
 				static::$handle = $tmp;
 			} elseif ( $tmp = ht_get_theme_data('Name') ) {
@@ -29,7 +27,9 @@ abstract class Theme extends Core {
 			}
 		}
 		parent::set_handle();
-		set_theme_data(array( 'handle' => static::$handle ));
+		if ( $this->is_theme_active() ) {
+			set_theme_data(array( 'handle' => static::$handle ));
+		}
 	}
 
 	protected function autoload() {
@@ -37,6 +37,30 @@ abstract class Theme extends Core {
 	}
 
 	// Functions.
+
+	final public function is_theme_active() {
+		static $_result = null;
+		if ( is_null($_result) ) {
+			$_result = false;
+			if ( isset($this->data['_autoload']) && $this->data['_autoload'] ) {
+				$tmp = $this->get_class_ancestors();
+				if ( ! empty($tmp) ) {
+					// First entry should be the called class file.
+					reset($tmp);
+					if ( str_starts_with(key($tmp), safe_path(get_stylesheet_directory())) ) {
+						$_result = true;
+					} else {
+						// In case of symlinks.
+						$array = glob(get_stylesheet_directory() . DIRECTORY_SEPARATOR . '*' . DIRECTORY_SEPARATOR . ht_basename(key($tmp)));
+						if ( ! empty($array) && str_contains(key($tmp), DIRECTORY_SEPARATOR . get_stylesheet() . DIRECTORY_SEPARATOR) ) {
+							$_result = true;
+						}
+					}
+				}
+			}
+		}
+		return $_result;
+	}
 
 	final public function load_filters( $values, $data_key = '_filters' ) {
 		$callback = function ( $value ) {

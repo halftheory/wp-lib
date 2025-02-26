@@ -24,6 +24,7 @@ abstract class Core {
 	}
 
 	public function __construct( $autoload = false ) {
+		$this->data['_autoload'] = $autoload;
 		$this->set_handle();
 		if ( $autoload === true ) {
 			$this->autoload();
@@ -167,6 +168,7 @@ abstract class Core {
 			$files = array(
 				'functions-php-array.php',
 				'functions-php-filesystem.php',
+				'functions-php-var.php',
 			);
 			foreach ( $files as $value ) {
 				$value = __DIR__ . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value;

@@ -138,13 +138,12 @@ if ( ! function_exists('ht_register_taxonomy') ) {
 				'show_in_nav_menus' => false,
 				'show_in_rest' => false,
 				'hierarchical' => true,
-				'query_var' => false,
 				'rewrite' => array(
 					'slug' => $plural_name,
 					'with_front' => false,
 				),
 			);
-			$args = wp_parse_args(make_array($args), $defaults);
+			$args = wp_parse_args($args, $defaults);
 			$results[ $taxonomy ] = register_taxonomy($taxonomy, $object_type, $args);
 		}
 		return $results;

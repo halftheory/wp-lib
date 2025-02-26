@@ -103,7 +103,7 @@ class No_Authors extends Filters {
 
 	// Admin.
 
-	public function admin_manage_media_columns( $posts_columns, $detached ) {
+	public function admin_manage_media_columns( $posts_columns, $detached = true ) {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $posts_columns;
 		}

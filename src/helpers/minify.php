@@ -19,7 +19,7 @@ class Minify extends Filters {
 			'css' => true,
 			'js' => true,
 		);
-		$this->load_functions('wp');
+		$this->load_functions('php-filesystem,wp-load,wp-plugin');
 		parent::__construct($autoload);
 	}
 

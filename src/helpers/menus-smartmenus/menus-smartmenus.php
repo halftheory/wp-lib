@@ -26,7 +26,7 @@ class Menus_Smartmenus extends Filters {
 			add_filter('nav_menu_item_attributes', array( $this, 'public_nav_menu_item_attributes' ), 20, 4);
 			add_filter('nav_menu_link_attributes', array( $this, 'public_nav_menu_link_attributes' ), 20, 4);
 			add_action('get_footer', array( $this, 'public_get_footer' ), 20, 2);
-			add_action('wp_footer', array( $this, 'public_wp_footer' ), 20);
+			add_action('wp_footer', array( $this, 'public_wp_footer' ));
 		}
 		parent::autoload();
 	}

@@ -31,6 +31,14 @@ class Admin_Common extends Filters {
 			add_filter('screen_options_show_screen', array( $this, 'admin_screen_options_show_screen' ), 100);
 			add_action('wp_dashboard_setup', array( $this, 'admin_wp_dashboard_setup' ));
 			add_action('wp_update_nav_menu', array( $this, 'admin_wp_update_nav_menu' ), 20, 2);
+			// Bulk add terms.
+			$post_types = array_value_unset(get_post_types(array( 'public' => true ), 'names'), 'attachment');
+			foreach ( $post_types as $value ) {
+				add_filter('bulk_actions-edit-' . $value, array( $this, 'admin_bulk_actions' ), 20);
+				add_filter('handle_bulk_actions-edit-' . $value, array( $this, 'admin_handle_bulk_actions' ), 20, 3);
+			}
+			add_filter('bulk_actions-upload', array( $this, 'admin_bulk_actions' ), 20);
+			add_filter('handle_bulk_actions-upload', array( $this, 'admin_handle_bulk_actions' ), 20, 3);
 		}
 		parent::autoload();
 	}
@@ -354,5 +362,61 @@ class Admin_Common extends Filters {
 			}
 		};
 		$func_update_posts($page_structure);
+	}
+
+	public function admin_bulk_actions( $actions ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $actions;
+		}
+		if ( ! isset($GLOBALS['typenow']) ) {
+			return $actions;
+		}
+		$taxonomies = get_object_taxonomies($GLOBALS['typenow']);
+		if ( empty($taxonomies) ) {
+			return $actions;
+		}
+		sort($taxonomies);
+		foreach ( $taxonomies as $taxonomy ) {
+			$terms = get_terms(
+				array(
+					'taxonomy' => $taxonomy,
+					'hide_empty' => false,
+					'fields' => 'ids',
+				)
+			);
+			if ( empty($terms) ) {
+				continue;
+			}
+			$taxonomy_label = get_taxonomy($taxonomy)->labels->singular_name;
+			foreach ( $terms as $value ) {
+				$actions[ 'add-term-' . $value ] = '+ ' . $taxonomy_label . ': ' . get_single_term_title($value);
+			}
+			$actions[ 'remove-terms-' . $taxonomy ] = __('Remove All') . ' ' . get_taxonomy($taxonomy)->label;
+		}
+		return $actions;
+	}
+
+	public function admin_handle_bulk_actions( $location, $doaction, $post_ids ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $location;
+		}
+		if ( str_starts_with($doaction, 'add-term-') ) {
+			$term = str_replace_start('add-term-', '', $doaction);
+			if ( $term = ht_get_term( (int) $term) ) {
+				foreach ( $post_ids as $post_id ) {
+					wp_add_object_terms($post_id, $term->term_id, $term->taxonomy);
+				}
+				$location = add_query_arg('posted', 1, $location);
+			}
+		} elseif ( str_starts_with($doaction, 'remove-terms-') ) {
+			$taxonomy = str_replace_start('remove-terms-', '', $doaction);
+			if ( taxonomy_exists($taxonomy) ) {
+				foreach ( $post_ids as $post_id ) {
+					wp_set_post_terms($post_id, array(), $taxonomy);
+				}
+				$location = add_query_arg('posted', 1, $location);
+			}
+		}
+		return $location;
 	}
 }

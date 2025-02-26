@@ -13,7 +13,7 @@ if ( ! function_exists('has_rest_namespace') ) {
 			if ( in_array($namespace, $array, true) ) {
 				return $namespace;
 			} elseif ( ! str_contains($namespace, '/') ) {
-				// try to find only first part of the name.
+				// Try to find only first part of the name.
 				foreach ( $array as $value ) {
 					if ( str_starts_with($value, $namespace . '/') ) {
 						return $value;
