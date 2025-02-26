@@ -14,7 +14,6 @@ abstract class Filters extends Core {
 		// Exit if accessed directly.
 		defined('ABSPATH') || exit(get_called_class());
 		// Load.
-		$this->load_functions(array( 'php', 'wp' ));
 		$this->add_filters_all();
 		parent::__construct($autoload);
 	}
@@ -31,10 +30,10 @@ abstract class Filters extends Core {
 
 	// Functions.
 
-	public function add_filters_all( $prefix = null ) {
+	final public function add_filters_all( $prefix = null ) {
 		if ( ! array_key_exists('_filters_all', $this->data) ) {
 			$this->data['_filters_all'] = array();
-			// collect all relevant methods into a list of filters.
+			// Collect all relevant methods into a list of filters.
 			$prefixes = array( 'global_', 'public_', 'admin_', 'rest_', 'wp_' );
 			foreach ( get_class_methods(get_called_class()) as $value ) {
 				foreach ( $prefixes as $p ) {
@@ -58,7 +57,7 @@ abstract class Filters extends Core {
 		return true;
 	}
 
-	public static function add_filter( $filter ) {
+	final public static function add_filter( $filter ) {
 		if ( ! method_exists(get_called_class(), $filter) ) {
 			return false;
 		}
@@ -69,7 +68,12 @@ abstract class Filters extends Core {
 		return true;
 	}
 
-	public static function remove_filters_all( $prefix = null ) {
+	protected function is_filter_active( $filter ) {
+		static::$filters = apply_filters(static::$handle, static::$filters);
+		return in_array($filter, static::$filters, true);
+	}
+
+	final public static function remove_filters_all( $prefix = null ) {
 		if ( empty($prefix) ) {
 			static::$filters = array();
 		} elseif ( is_string($prefix) ) {
@@ -83,17 +87,12 @@ abstract class Filters extends Core {
 		return true;
 	}
 
-	public static function remove_filter( $filter ) {
+	final public static function remove_filter( $filter ) {
 		if ( ! in_array($filter, static::$filters, true) ) {
 			return false;
 		}
 		static::$filters = array_values(array_value_unset(static::$filters, $filter));
 		return true;
-	}
-
-	protected function is_filter_active( $filter ) {
-		static::$filters = apply_filters(static::$handle, static::$filters);
-		return in_array($filter, static::$filters, true);
 	}
 
 	// Global.

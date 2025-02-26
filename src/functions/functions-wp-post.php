@@ -146,7 +146,7 @@ if ( ! function_exists('ht_get_posts') ) {
 }
 
 if ( ! function_exists('ht_register_post_type') ) {
-	function ht_register_post_type( $post_types, $args = null ) {
+	function ht_register_post_type( $post_types, $args = array() ) {
 		$result = array();
 		foreach ( make_array($post_types) as $post_type ) {
 			if ( $post_type === 'any' ) {
@@ -165,7 +165,6 @@ if ( ! function_exists('ht_register_post_type') ) {
 				'show_in_rest' => false,
 				'has_archive' => true,
 				'hierarchical' => true,
-				'query_var' => false,
 				'rewrite' => array(
 					'slug' => $plural_name,
 					'with_front' => false,
@@ -175,7 +174,7 @@ if ( ! function_exists('ht_register_post_type') ) {
 					'singular_name' => ucfirst($post_type),
 				),
 			);
-			$args = wp_parse_args(make_array($args), $defaults);
+			$args = wp_parse_args($args, $defaults);
 			$result[ $post_type ] = register_post_type($post_type, $args);
 		}
 		return $result;
