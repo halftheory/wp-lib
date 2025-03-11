@@ -26,6 +26,7 @@ if ( ! function_exists('get_stylesheet_uri_from_file') ) {
 		if ( ! file_exists($file) || ! is_file($file) ) {
 			return false;
 		}
+		$file = maybe_restore_symlink_path($file);
 		if ( str_starts_with($file, get_stylesheet_directory()) ) {
 			return str_replace(trailingslashit(get_stylesheet_directory()), trailingslashit(get_stylesheet_directory_uri()), $file);
 		}
@@ -177,7 +178,7 @@ if ( ! function_exists('set_theme_data') ) {
 				'AuthorURI' => home_url('/'),
 				'Status' => 'publish',
 				'DomainPath' => file_exists(path_join(get_stylesheet_directory(), 'languages')) ? path_join(get_stylesheet_directory(), 'languages') : null,
-				'handle' => ht_basename(get_stylesheet_directory()),
+				'handle' => get_stylesheet(),
 			);
 			if ( ! function_exists('wp_get_theme') ) {
 				require_once path_join(WPINC, 'theme.php');

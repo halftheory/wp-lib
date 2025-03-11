@@ -171,12 +171,23 @@ class Menus_Smartmenus extends Filters {
 
 	// Functions.
 
-	public function menu_button() {
+	public function menu_button( $type = 'smartmenus' ) {
 		// theme()->get_helper('menus-smartmenus')->menu_button();
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}
-		?>
+		switch ( $type ) {
+			case 'fontawesome':
+			case 'fa':
+				?>
+<a class="fa fa-bars sm-toggler-anchor--show" href="#menu" role="button"><span class="screen-reader-text"><?php esc_html_e('Menu'); ?></span></a>
+				<?php
+				break;
+
+			case 'smartmenus':
+			case 'sm':
+			default:
+				?>
 <div class="sm-toggler">
 	<a href="#menu" class="sm-toggler-anchor sm-toggler-anchor--show" role="button" aria-label="<?php esc_attr_e('Open menu'); ?>">
 		<span class="sm-toggler-icon sm-toggler-icon--show"></span>
@@ -185,6 +196,8 @@ class Menus_Smartmenus extends Filters {
 		<span class="sm-toggler-icon sm-toggler-icon--hide"></span>
 	</a>
 </div>
-		<?php
+				<?php
+				break;
+		}
 	}
 }

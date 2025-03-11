@@ -30,3 +30,25 @@ if ( ! function_exists('is_true') ) {
 		return false;
 	}
 }
+
+if ( ! function_exists('ht_var_dump') ) {
+	function ht_var_dump( $value, $exit = true ) {
+		echo '<pre>';
+		if ( is_array($value) || is_object($value) || is_resource($value) ) {
+			print_r($value);
+		} elseif ( is_string($value) || is_numeric($value) ) {
+			echo $value;
+		} elseif ( is_bool($value) ) {
+			echo $value ? 'true' : 'false';
+		} elseif ( is_null($value) ) {
+			echo 'null';
+		} else {
+			var_dump($value);
+		}
+		echo "\n";
+		echo '</pre>';
+		if ( $exit ) {
+			exit;
+		}
+	}
+}

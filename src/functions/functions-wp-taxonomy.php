@@ -1,4 +1,40 @@
 <?php
+if ( ! function_exists('get_taxonomies_slugs') ) {
+	function get_taxonomies_slugs() {
+		static $_results = null;
+		if ( is_null($_results) || did_action('get_header') === 0 ) {
+			$_results = array();
+			$tmp = get_taxonomies(array( 'public' => true ), 'objects');
+			if ( ! empty($tmp) ) {
+				$_results = wp_list_pluck(wp_list_pluck($tmp, 'rewrite'), 'slug');
+			}
+		}
+		return $_results;
+	}
+}
+
+if ( ! function_exists('get_taxonomy_from_page_path') ) {
+	function get_taxonomy_from_page_path( $post = null ) {
+		$post = get_post($post);
+		if ( ! $post ) {
+			return false;
+		}
+		foreach ( get_taxonomies_slugs() as $taxonomy => $slug ) {
+			if ( $taxonomy === 'post_format' ) {
+				continue;
+			}
+			$array = explode('/', $slug);
+			reset($array);
+			if ( $tmp = get_page_by_path(current($array), $post->post_type) ) {
+				if ( (int) $tmp->ID === (int) $post->ID ) {
+					return $taxonomy;
+				}
+			}
+		}
+		return false;
+	}
+}
+
 if ( ! function_exists('get_taxonomy_objects') ) {
 	function get_taxonomy_objects( $taxonomy ) {
 		if ( $tmp = get_taxonomy($taxonomy) ) {
@@ -129,19 +165,19 @@ if ( ! function_exists('ht_register_taxonomy') ) {
 			if ( $results[ $taxonomy ] ) {
 				continue;
 			}
-			$plural_name = rtrim($taxonomy, 's') . 's';
+			$label_singular = ucwords(preg_replace('/[_-]+/', ' ', $taxonomy));
+			$label_plural = rtrim($label_singular, 's') . 's';
 			$defaults = array(
-				'description' => $taxonomy,
-				'label' => ucfirst($plural_name),
+				'labels' => array(
+					'name' => $label_plural,
+					'singular_name' => $label_singular,
+				),
 				'public' => true,
-				'show_ui' => false,
-				'show_in_nav_menus' => false,
-				'show_in_rest' => false,
-				'hierarchical' => true,
 				'rewrite' => array(
-					'slug' => $plural_name,
+					'slug' => rtrim(strtolower($taxonomy), 's') . 's',
 					'with_front' => false,
 				),
+				'update_count_callback' => count($object_type) === 1 && in_array('attachment', $object_type) ? '_update_generic_term_count' : '',
 			);
 			$args = wp_parse_args($args, $defaults);
 			$results[ $taxonomy ] = register_taxonomy($taxonomy, $object_type, $args);

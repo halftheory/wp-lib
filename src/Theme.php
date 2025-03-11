@@ -13,6 +13,9 @@ abstract class Theme extends Core {
 		defined('ABSPATH') || exit(get_called_class());
 		// Load.
 		$this->load_functions('php,wp-load,wp-theme');
+		if ( is_development() ) {
+			set_symlinks(get_stylesheet_directory());
+		}
 		set_encoding(get_bloginfo('charset'));
 		parent::__construct($autoload);
 	}
@@ -47,7 +50,7 @@ abstract class Theme extends Core {
 				if ( ! empty($tmp) ) {
 					// First entry should be the called class file.
 					reset($tmp);
-					if ( str_starts_with(key($tmp), safe_path(get_stylesheet_directory())) ) {
+					if ( str_starts_with(maybe_restore_symlink_path(key($tmp)), safe_path(get_stylesheet_directory())) ) {
 						$_result = true;
 					} else {
 						// In case of symlinks.

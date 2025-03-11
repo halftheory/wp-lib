@@ -10,6 +10,42 @@ if ( ! function_exists('filesystem_is_case_insensitive') ) {
 	}
 }
 
+if ( ! function_exists('get_symlink_directories') ) {
+	function get_symlink_directories( $path ) {
+		// Returns an array of keys (link path) => value (real path).
+		$results = array();
+		$path = is_dir($path) ? $path : ht_dirname($path);
+		if ( is_link($path) ) {
+			if ( $tmp = realpath($path) ) {
+				$key = safe_path($path);
+				$results[ $key ] = safe_path($tmp);
+			}
+		}
+		if ( ! class_exists('RecursiveIteratorIterator') ) {
+			return $results;
+		}
+		$files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::LEAVES_ONLY);
+		foreach ( $files as $file ) {
+		    if ( ! $file->isDir() ) {
+		        continue;
+		    }
+		    if ( ! $file->isLink() ) {
+		        continue;
+		    }
+		    $key = safe_path($file->getPathname());
+		    $results[ $key ] = safe_path($file->getRealPath());
+		}
+		krsort($results);
+		return $results;
+	}
+}
+
+if ( ! function_exists('get_symlinks') ) {
+	function get_symlinks() {
+		return set_symlinks();
+	}
+}
+
 if ( ! function_exists('ht_basename') ) {
 	function ht_basename( $path, $suffix = '' ) {
 		if ( is_array($path) ) {
@@ -114,6 +150,19 @@ if ( ! function_exists('ht_file_get_contents') ) {
 	}
 }
 
+if ( ! function_exists('maybe_restore_symlink_path') ) {
+	function maybe_restore_symlink_path( $path ) {
+		$path = safe_path($path);
+		foreach ( get_symlinks() as $link => $real ) {
+			if ( str_starts_with($path, $real) ) {
+				$path = str_replace_start($real, $link, $path);
+				break;
+			}
+		}
+		return $path;
+	}
+}
+
 if ( ! function_exists('safe_path') ) {
 	function safe_path( $path ) {
 		if ( is_array($path) ) {
@@ -136,5 +185,33 @@ if ( ! function_exists('safe_path') ) {
 			}
 		}
 		return $path;
+	}
+}
+
+if ( ! function_exists('set_symlinks') ) {
+	function set_symlinks( $array = array() ) {
+		// Returns an array of keys (link path) => value (real path).
+		static $_results = array();
+		if ( ! empty($array) ) {
+			foreach ( make_array($array) as $key => $value ) {
+				if ( is_numeric($key) && file_exists($value) ) {
+					// Resolve references to symbolic links.
+					if ( is_dir($value) ) {
+						$_results = array_merge($_results, get_symlink_directories($value));
+					} elseif ( is_link($value) ) {
+						if ( $tmp = realpath($value) ) {
+							$k = safe_path($value);
+							$_results[ $k ] = safe_path($tmp);
+						}
+					}
+				} elseif ( is_string($key) && is_string($value) ) {
+					// Trust the input.
+					$k = safe_path($key);
+					$_results[ $k ] = safe_path($value);
+				}
+			}
+			$_results = sort_longest_first($_results);
+		}
+		return $_results;
 	}
 }
