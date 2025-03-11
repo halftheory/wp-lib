@@ -30,6 +30,32 @@ if ( ! function_exists('get_attachment_path') ) {
 	}
 }
 
+if ( ! function_exists('get_post_archive') ) {
+	function get_post_archive() {
+		static $_result = null;
+		if ( is_null($_result) ) {
+			$_result = false;
+			if ( ht_is_archive() ) {
+				if ( is_post_type_archive() || is_posts_page() || is_date() ) {
+					if ( $tmp = get_post_post_type_archive(get_post_type()) ) {
+						$_result = $tmp;
+					}
+				} elseif ( is_tax() || is_category() || is_tag() ) {
+					$queried_object = get_queried_object();
+					if ( is_object($queried_object) && is_a($queried_object, 'WP_Term') && isset($queried_object->taxonomy) ) {
+						if ( $tmp = get_post_taxonomy_archive($queried_object->taxonomy) ) {
+							$_result = $tmp;
+						}
+					}
+				} elseif ( is_singular() && get_taxonomy_from_page_path() ) {
+					$_result = get_post(ht_get_the_ID());
+				}
+			}
+		}
+		return $_result;
+	}
+}
+
 if ( ! function_exists('get_post_front_page') ) {
 	function get_post_front_page() {
 		static $_result = null;
@@ -157,21 +183,24 @@ if ( ! function_exists('ht_register_post_type') ) {
 			if ( $result[ $post_type ] ) {
 				continue;
 			}
-			$plural_name = rtrim($post_type, 's') . 's';
+			$label_singular = ucwords(preg_replace('/[_-]+/', ' ', $post_type));
+			$label_plural = rtrim($label_singular, 's') . 's';
 			$defaults = array(
+				'labels' => array(
+					'name' => $label_plural,
+					'singular_name' => $label_singular,
+					'archives' => $label_singular . ' ' . __('Archives'),
+				),
 				'public' => true,
-				'show_ui' => false,
-				'show_in_nav_menus' => false,
-				'show_in_rest' => false,
 				'has_archive' => true,
-				'hierarchical' => true,
 				'rewrite' => array(
-					'slug' => $plural_name,
+					'slug' => rtrim(strtolower($post_type), 's') . 's',
 					'with_front' => false,
 				),
-				'labels' => array(
-					'name' => ucfirst($plural_name),
-					'singular_name' => ucfirst($post_type),
+				'supports' => array(
+					'title',
+					'editor',
+					'thumbnail',
 				),
 			);
 			$args = wp_parse_args($args, $defaults);

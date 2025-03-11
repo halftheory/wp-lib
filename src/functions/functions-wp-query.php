@@ -59,6 +59,21 @@ if ( ! function_exists('has_search_results') ) {
 	}
 }
 
+if ( ! function_exists('ht_is_archive') ) {
+	function ht_is_archive() {
+		static $_result = null;
+		if ( is_null($_result) ) {
+			$_result = false;
+			if ( is_archive() || is_posts_page() ) {
+				$_result = true;
+			} elseif ( is_singular() && get_taxonomy_from_page_path() ) {
+				$_result = true;
+			}
+		}
+		return $_result;
+	}
+}
+
 if ( ! function_exists('ht_is_front_page') ) {
 	function ht_is_front_page( $post_id = null ) {
 		if ( is_numeric($post_id) ) {
