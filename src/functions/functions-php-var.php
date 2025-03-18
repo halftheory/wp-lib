@@ -45,9 +45,8 @@ if ( ! function_exists('ht_var_dump') ) {
 		} else {
 			var_dump($value);
 		}
-		echo "\n";
-		echo '</pre>';
-		if ( $exit ) {
+		echo "\n</pre>";
+		if ( is_true($exit) ) {
 			exit;
 		}
 	}

@@ -58,6 +58,24 @@ if ( ! function_exists('ht_get_the_ID') ) {
 	}
 }
 
+if ( ! function_exists('match_page_template_slug') ) {
+	function match_page_template_slug( $filename, $post = null ) {
+		if ( ! $filename ) {
+			return false;
+		}
+		$page_template_slug = get_page_template_slug($post);
+		if ( empty($page_template_slug) ) {
+			return false;
+		}
+		$array = array(
+			$page_template_slug,
+			ht_basename($page_template_slug),
+			pathinfo($page_template_slug, PATHINFO_FILENAME),
+		);
+		return in_array($filename, $array, true);
+	}
+}
+
 if ( ! function_exists('the_excerpt_fallback') ) {
 	function the_excerpt_fallback( $excerpt = '', $post = null, $args = array() ) {
 		if ( ! empty_zero_ok($excerpt) ) {

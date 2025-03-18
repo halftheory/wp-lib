@@ -33,8 +33,6 @@ class Minify extends Filters {
 				$priority[] = get_filter_next_priority('get_header');
 			}
 			add_action('get_header', array( $this, 'public_get_header' ), max($priority));
-		} else {
-			// Admin.
 		}
 		parent::autoload();
 	}

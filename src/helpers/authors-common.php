@@ -17,17 +17,12 @@ class Authors_Common extends Filters {
 	}
 
 	protected function autoload() {
-		// Global.
 		if ( is_public() ) {
 			// Public.
 			add_filter('the_author', array( $this, 'public_the_author' ), 90);
-		} else {
-			// Admin.
 		}
 		parent::autoload();
 	}
-
-	// Global.
 
 	// Public.
 
@@ -47,6 +42,4 @@ class Authors_Common extends Filters {
 		}
 		return $change ? get_bloginfo('name') : $display_name;
 	}
-
-	// Admin.
 }

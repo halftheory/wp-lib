@@ -19,9 +19,7 @@ class Taxonomy_Thumbnails extends Filters {
 
 	protected function autoload() {
 		// Global.
-		if ( is_public() ) {
-			// Public.
-		} else {
+		if ( ! is_public() ) {
 			// Admin.
 			add_action('edited_term_taxonomy', array( $this, 'admin_edited_term_taxonomy' ), 20, 3);
 			add_action('delete_term', array( $this, 'admin_delete_term' ), 20, 5);
@@ -57,7 +55,7 @@ class Taxonomy_Thumbnails extends Filters {
 		);
 		$posts = ht_get_posts($args);
 		if ( ! $posts ) {
-			return false;
+			return;
 		}
 		// Update thumbnail.
 		$thumbnail_id = null;

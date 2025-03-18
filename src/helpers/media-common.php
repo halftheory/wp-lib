@@ -22,6 +22,7 @@ class Media_Common extends Filters {
 		add_filter('big_image_size_threshold', array( $this, 'global_big_image_size_threshold' ), 10, 4);
 		add_filter('intermediate_image_sizes', array( $this, 'global_intermediate_image_sizes' ));
 		add_filter('image_downsize', array( $this, 'global_image_downsize' ), 10, 3);
+		add_filter('upload_mimes', array( $this, 'global_upload_mimes' ), 90);
 		if ( is_public() ) {
 			// Public.
 			remove_action('wp_head', 'wp_print_auto_sizes_contain_css_fix', 1);
@@ -35,7 +36,6 @@ class Media_Common extends Filters {
 			add_action('post_action_regenerate-images', array( $this, 'admin_post_action_regenerate_images' ));
 			add_filter('bulk_actions-upload', array( $this, 'admin_bulk_actions_upload' ));
 			add_filter('handle_bulk_actions-upload', array( $this, 'admin_handle_bulk_actions_upload' ), 20, 3);
-			add_filter('upload_mimes', array( $this, 'admin_upload_mimes' ), 90);
 			if ( is_network_admin() ) {
 				add_action('wpmu_update_blog_options', array( $this, 'admin_wpmu_update_blog_options' ));
 			}
@@ -102,6 +102,22 @@ class Media_Common extends Filters {
 			}
 		}
 		return $out;
+	}
+
+	public function global_upload_mimes( $mimes ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $mimes;
+		}
+		$array = array(
+			'svg' => 'image/svg+xml',
+			'svgz' => 'image/svg+xml',
+		);
+		foreach ( $array as $key => $value ) {
+			if ( ! isset($mimes[ $key ]) ) {
+				$mimes[ $key ] = $value;
+			}
+		}
+		return $mimes;
 	}
 
 	// Public.
@@ -241,22 +257,6 @@ class Media_Common extends Filters {
 				break;
 		}
 		return $location;
-	}
-
-	public function admin_upload_mimes( $mimes ) {
-		if ( ! $this->is_filter_active(__FUNCTION__) ) {
-			return $mimes;
-		}
-		$array = array(
-			'svg' => 'image/svg+xml',
-			'svgz' => 'image/svg+xml',
-		);
-		foreach ( $array as $key => $value ) {
-			if ( ! isset($mimes[ $key ]) ) {
-				$mimes[ $key ] = $value;
-			}
-		}
-		return $mimes;
 	}
 
 	public function admin_wpmu_update_blog_options( $id ) {

@@ -22,8 +22,6 @@ class Video_Common extends Filters {
 		if ( is_public() ) {
 			// Public.
 			add_action('get_footer', array( $this, 'public_get_footer' ), 20, 2);
-		} else {
-			// Admin.
 		}
 		parent::autoload();
 	}

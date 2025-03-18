@@ -5,6 +5,21 @@ if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'functions-wp.php') ) {
 
 // Everything referenced in wp-admin/*/*.php
 
+if ( ! function_exists('admin_download_functions_loaded') ) {
+	function admin_download_functions_loaded() {
+		if ( ! function_exists('wp_tempnam') ) {
+			require_once path_join(ABSPATH, 'wp-admin/includes/file.php');
+		}
+		if ( ! function_exists('media_handle_sideload') ) {
+			require_once path_join(ABSPATH, 'wp-admin/includes/media.php');
+		}
+		if ( ! function_exists('wp_read_image_metadata') ) {
+			require_once path_join(ABSPATH, 'wp-admin/includes/image.php');
+		}
+		return function_exists('wp_tempnam') && function_exists('media_handle_sideload') && function_exists('wp_read_image_metadata');
+	}
+}
+
 if ( ! function_exists('admin_is_edit_screen') ) {
 	function admin_is_edit_screen( $post_types = array() ) {
 		$post_types = empty($post_types) ? get_post_types(array(), 'names') : make_array($post_types);
