@@ -12,20 +12,15 @@ class Video_Featured extends Filters {
 
 	protected static $filters = array();
 
-	public function __construct( $autoload = true ) {
+	public function __construct( $autoload = true, $post_types = array() ) {
+		$this->data['post_types'] = empty($post_types) ? array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))) : $post_types;
 		$this->load_functions('video-common,video-featured');
 		parent::__construct($autoload);
 	}
 
 	protected function autoload() {
-		$this->data['post_types'] = array(
-			'page',
-			'post',
-		);
 		// Global.
-		if ( is_public() ) {
-			// Public.
-		} else {
+		if ( ! is_public() ) {
 			// Admin.
 			add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 20);
 			foreach ( $this->data['post_types'] as $value ) {

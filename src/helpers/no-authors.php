@@ -35,8 +35,6 @@ class No_Authors extends Filters {
 		parent::autoload();
 	}
 
-	// Global.
-
 	// Public.
 
 	public function public_template_redirect() {

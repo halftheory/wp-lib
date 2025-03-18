@@ -114,11 +114,11 @@ After `composer init` add the following to your `composer.json` file:
         "type": "package",
         "package": {
             "name": "halftheory/wp-lib",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "url": "https://github.com/halftheory/wp-lib/",
                 "type": "git",
-                "reference": "1.0.3"
+                "reference": "1.0.4"
             }
         }
     }
@@ -140,14 +140,15 @@ require __DIR__ . '/vendor/autoload.php';
 ```
 
 ## Credits
+- [Fuzzysort](https://github.com/farzher/fuzzysort/) (helper: `search-fuzzysort`)
 - [Minify](https://github.com/mrclay/minify/) (helper: `minify`)
 - [Slick Carousel](https://kenwheeler.github.io/slick/) (helper: `gallery-carousel`)
 - [Slicknav](https://computerwolf.github.io/SlickNav/) (helper: `menus-slicknav`)
 - [SmartMenus](https://www.smartmenus.org/) (helper: `menus-smartmenus`)
 
 ## Future
-* Halftheory\Lib\Plugin class.
-* Helpers:
- * cdn
- * infinite-scroll
-* More microdata functions.
+- Halftheory\Lib\Plugin class.
+- Helpers:
+    - cdn
+    - infinite-scroll
+- More microdata functions.

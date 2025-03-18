@@ -334,6 +334,7 @@ if ( ! function_exists('get_excerpt') ) {
 
 		// Trim the start.
 		$regex_array = array();
+		$regex_array_values = array();
 		foreach ( $args['trim'] as $key => $value ) {
 			switch ( $key ) {
 				case 'email':
@@ -368,7 +369,7 @@ if ( ! function_exists('get_excerpt') ) {
 					$value = array_unique($value);
 					$value = array_filter($value);
 					foreach ( $value as $v ) {
-						$regex_array[] = $v;
+						$regex_array_values[] = $v;
 						if ( $args['html'] ) {
 							$regex_array[] = $regex_patterns['tag_open'] . $regex_patterns['space'] . preg_quote($v, '/');
 							$regex_array[] = $regex_patterns['tag_open'] . $regex_patterns['tag_open'] . $regex_patterns['space'] . preg_quote($v, '/');
@@ -380,7 +381,7 @@ if ( ! function_exists('get_excerpt') ) {
 					break;
 			}
 		}
-		if ( ! empty($regex_array) ) {
+		if ( ! empty($regex_array) || ! empty($regex_array_values) ) {
 			$regex_run = true;
 			while ( $regex_run ) {
 				$regex_run = false;
@@ -388,18 +389,25 @@ if ( ! function_exists('get_excerpt') ) {
 					if ( strlen($string) < strlen($value) ) {
 						break;
 					}
+					if ( preg_match('/^' . $regex_patterns['space'] . $value . '/i', $string, $matches) ) {
+						// Probably URLs.
+						$string = preg_replace('/^' . $regex_patterns['space'] . preg_quote(trim($matches[0]), '/') . '/i', '', $string, 1);
+						$regex_run = true;
+					}
+				}
+				foreach ( $regex_array_values as $value ) {
+					if ( strlen($string) < strlen($value) ) {
+						break;
+					}
 					if ( str_starts_with($string, $value) ) {
 						// Probably titles.
-						$string = str_replace_start($value . $regex_patterns['space'], '', $string);
-						$regex_run = true;
-					} elseif ( preg_match('/^' . $regex_patterns['space'] . $value . '/i', $string, $matches) ) {
-						// Probably URLs.
-						$string = preg_replace('/^' . $regex_patterns['space'] . preg_quote($matches[0], '/') . '/i', '', $string, 1);
+						$string = preg_replace('/^' . preg_quote($value, '/') . $regex_patterns['space'] . '/s', '', $string, 1);
 						$regex_run = true;
 					}
 				}
 			}
 		}
+		unset($regex_array, $regex_array_values);
 
 		// Get current length.
 		if ( $args['html'] ) {

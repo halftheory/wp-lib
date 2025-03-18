@@ -1,0 +1,19 @@
+$breakpoints: (
+    xxs: 320px,
+    xs: 480px,
+    sm: 600px,
+    md: 782px,
+    lg: 960px,
+    xl: 1280px,
+    xxl: 1440px,
+    xxxl: 1900px,
+) !default;
+
+$dashicons: (
+    arrow-down: '\f140',
+    arrow-left: '\f141',
+    arrow-right: '\f139',
+    arrow-up: '\f142'
+) !default;
+
+$spacer: 1rem !default;

@@ -28,8 +28,6 @@ class No_Blocks extends Filters {
 		parent::autoload();
 	}
 
-	// Global.
-
 	// Public.
 
 	public function public_init() {
@@ -68,6 +66,4 @@ class No_Blocks extends Filters {
 		}
 		wp_dequeue_style('core-block-supports');
 	}
-
-	// Admin.
 }

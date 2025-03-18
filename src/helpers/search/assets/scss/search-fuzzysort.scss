@@ -1,0 +1,23 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.search-fuzzysort {
+	&.search-results {
+		position: absolute;
+		z-index: 1;
+
+		ul {
+			list-style: none;
+
+			li.view-all-results {
+				a:after {
+					content: map-get(l.$dashicons, arrow-right);
+					font-family: dashicons;
+					display: inline-block;
+					vertical-align: top;
+				}
+			}
+		}
+	}
+}

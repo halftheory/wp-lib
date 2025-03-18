@@ -87,6 +87,4 @@ class Feed_Common extends Filters {
 		}
 		return $content;
 	}
-
-	// Admin.
 }
