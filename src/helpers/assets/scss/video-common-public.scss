@@ -1,0 +1,86 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l with ( $handle: 'video' );
+
+video {
+    pointer-events: none;
+
+    &::-webkit-media-controls {
+        display: none !important;
+    }
+
+    .wp-video & {
+        background-color: #000;
+    }
+}
+
+.post-video {
+    &.square {
+        @supports (aspect-ratio: 1/1) {
+            video {
+                aspect-ratio: 1/1;
+            }
+        }
+    }
+    &.portrait {
+
+    }
+    &.landscape {
+        @supports (aspect-ratio: 16/9) {
+            video {
+                aspect-ratio: 16/9;
+            }
+        }
+    }
+
+    &.singular {
+        &.square {
+
+        }
+        &.portrait {
+
+        }
+        &.landscape {
+
+        }
+    }
+}
+
+/* Normalize wp-mediaelement.css */
+.wp-playlist {
+    font-size: inherit;
+    line-height: inherit;
+    padding: l.$spacer;
+    border: 1px solid currentColor;
+}
+.wp-playlist-light {
+    color: inherit;
+}
+.wp-playlist-caption {
+    font-size: inherit;
+    line-height: inherit;
+}
+.wp-playlist-item-meta {
+    line-height: inherit;
+}
+.wp-playlist-item {
+    border-bottom: 1px solid currentColor;
+    padding: 0 0 (l.$spacer * .5);
+    margin: 0 0 (l.$spacer * .5);
+    &:last-child {
+        border-bottom: 0;
+        padding: 0;
+        margin: 0;
+    }
+}
+.wp-playlist-item-title {
+    font-size: inherit;
+    line-height: inherit;
+}
+.wp-playlist-item-artist {
+    font-size: inherit;
+}
+.wp-playlist-item-length {
+    font-size: inherit;
+    line-height: inherit;
+}

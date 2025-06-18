@@ -35,16 +35,16 @@ if ( ! function_exists('ht_the_post_thumbnail') ) {
 		if ( isset($attr['class']) ) {
 			$div_class[] = trim($attr['class']);
 		}
+		$label = $attr['alt'] ? wp_sprintf('%s: "%s"', __('Image'), $attr['alt']) : __('Image');
 		if ( is_singular() ) {
 			// Singular.
 			$div_class[] = 'singular';
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>">
-				<a href="<?php echo esc_url(get_image_context('url', $thumbnail_id, 'large')); ?>" aria-hidden="true" rel="lightbox"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+				<a href="<?php echo esc_url(get_image_context('url', $thumbnail_id, 'large')); ?>" rel="lightbox"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
 				<?php
 				// Caption.
-				$tmp = wp_get_attachment_caption($thumbnail_id);
-				if ( ! empty($tmp) ) {
+				if ( $tmp = wp_get_attachment_caption($thumbnail_id) ) {
 					?>
 					<p class="caption"><?php echo wp_kses_post($tmp); ?></p>
 					<?php
@@ -55,8 +55,8 @@ if ( ! function_exists('ht_the_post_thumbnail') ) {
 		} else {
 			// Archives.
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>">
-				<a href="<?php the_permalink(); ?>" aria-hidden="true"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+				<a href="<?php the_permalink(); ?>"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
 			</div>
 			<?php
 		}

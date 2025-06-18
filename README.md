@@ -142,6 +142,7 @@ require __DIR__ . '/vendor/autoload.php';
 ## Credits
 - [Fuzzysort](https://github.com/farzher/fuzzysort/) (helper: `search-fuzzysort`)
 - [Minify](https://github.com/mrclay/minify/) (helper: `minify`)
+- [Packery](https://packery.metafizzy.co/) (helper: `gallery-packery`)
 - [Slick Carousel](https://kenwheeler.github.io/slick/) (helper: `gallery-carousel`)
 - [Slicknav](https://computerwolf.github.io/SlickNav/) (helper: `menus-slicknav`)
 - [SmartMenus](https://www.smartmenus.org/) (helper: `menus-smartmenus`)

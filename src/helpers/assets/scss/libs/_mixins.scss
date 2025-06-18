@@ -1,0 +1,55 @@
+@use 'sass' as *;
+@use 'variables' as v;
+@use 'functions' as f;
+
+@mixin breakpoint($value) {
+	$result: $value;
+	@if map-get(v.$breakpoints, $value) {
+		$result: map-get(v.$breakpoints, $value);
+	}
+	@media (min-width: $result) {
+		@content;
+	}
+}
+
+@mixin hover($selector: a) {
+	@if $selector == & {
+		&:hover, &:active {
+			@content;
+		}
+	}
+	@else {
+		#{$selector}:hover, #{$selector}:active {
+			@content;
+		}
+	}
+}
+
+@mixin link($selector: a) {
+	@if $selector == & {
+		&, &:link, &:visited, &:focus {
+			@content;
+		}
+	}
+	@else {
+		#{$selector}, #{$selector}:link, #{$selector}:visited, #{$selector}:focus {
+			@content;
+		}
+	}
+}
+
+@mixin transition($property: all, $duration: 0.2s, $timing-function: ease, $delay: 0s, $important: null) {
+	@if $important {
+		$important: '!important';
+	}
+	@if list-length($property) == 1 {
+		transition: #{$property} #{f.make-time($duration)} #{$timing-function} #{f.make-time($delay)} #{$important};
+	}
+	@else {
+		transition-property: list-join($property, (), comma) #{$important};
+		transition-duration: f.make-time($duration);
+		transition-timing-function: $timing-function;
+		transition-delay: f.make-time($delay);
+	}
+	@content;
+}

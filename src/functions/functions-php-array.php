@@ -98,3 +98,14 @@ if ( ! function_exists('sort_longest_first') ) {
 		return $array;
 	}
 }
+
+if ( ! function_exists('sort_shortest_first') ) {
+	function sort_shortest_first( $array ) {
+		$array = make_array($array);
+		$callback = function ( $a, $b ) {
+			return strlen($a) - strlen($b);
+		};
+		uasort($array, $callback);
+		return $array;
+	}
+}

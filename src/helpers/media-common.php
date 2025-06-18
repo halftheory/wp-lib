@@ -33,6 +33,7 @@ class Media_Common extends Filters {
 			add_action('after_switch_theme', array( $this, 'admin_after_switch_theme' ), 10, 2);
 			add_action('admin_init', array( $this, 'admin_init' ));
 			add_filter('media_row_actions', array( $this, 'admin_media_row_actions' ), 20, 3);
+			add_action('post_action_correct-path', array( $this, 'admin_post_action_correct_path' ));
 			add_action('post_action_regenerate-images', array( $this, 'admin_post_action_regenerate_images' ));
 			add_filter('bulk_actions-upload', array( $this, 'admin_bulk_actions_upload' ));
 			add_filter('handle_bulk_actions-upload', array( $this, 'admin_handle_bulk_actions_upload' ), 20, 3);
@@ -175,6 +176,13 @@ class Media_Common extends Filters {
 					}
 				}
 				break;
+			case 'correct_all_paths':
+				if ( $this->correct_all_paths() ) {
+					if ( wp_redirect(add_query_arg('posted', 1, admin_url('upload.php'))) ) {
+						exit;
+					}
+				}
+				break;
 			case 'regenerate_all_images':
 				if ( $this->regenerate_all_images() ) {
 					if ( wp_redirect(add_query_arg('posted', 1, admin_url('upload.php'))) ) {
@@ -191,19 +199,44 @@ class Media_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $actions;
 		}
-		if ( isset($actions['regenerate-images']) ) {
-			return $actions;
+		if ( ! isset($actions['regenerate-images']) && wp_attachment_is_image($post) ) {
+			$actions['regenerate-images'] = sprintf(
+				'<a href="%s" aria-label="%s">%s</a>',
+				wp_nonce_url("post.php?action=regenerate-images&amp;post=$post->ID", 'regenerate-images-post_' . $post->ID),
+				esc_attr( sprintf( __('Regenerate images for &#8220;%s&#8221;'), $post->post_title) ),
+				__('Regenerate Images')
+			);
 		}
-		if ( ! wp_attachment_is_image($post) ) {
-			return $actions;
+		if ( ! $this->attachment_has_correct_path($post->ID) ) {
+			$actions['correct-path'] = sprintf(
+				'<a href="%s" aria-label="%s">%s</a>',
+				wp_nonce_url("post.php?action=correct-path&amp;post=$post->ID", 'correct-path-post_' . $post->ID),
+				esc_attr( sprintf( __('Correct path for &#8220;%s&#8221;'), $post->post_title) ),
+				__('Correct Path')
+			);
 		}
-		$actions['regenerate-images'] = sprintf(
-			'<a href="%s" aria-label="%s">%s</a>',
-			wp_nonce_url("post.php?action=regenerate-images&amp;post=$post->ID", 'regenerate-images-post_' . $post->ID),
-			esc_attr( sprintf( __('Regenerate images for &#8220;%s&#8221;'), $post->post_title) ),
-			__('Regenerate Images')
-		);
 		return $actions;
+	}
+
+	public function admin_post_action_correct_path( $post_id = 0 ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return;
+		}
+		check_admin_referer('correct-path-post_' . $post_id);
+		global $post;
+		$tmp_post = $post_id ? get_post($post_id) : $post;
+		if ( ! is_object($tmp_post) ) {
+			wp_die(esc_html__('The item you are trying to edit no longer exists.'));
+		}
+		if ( ! current_user_can('edit_post', $tmp_post->ID) ) {
+			wp_die(esc_html__('Sorry, you are not allowed to edit this item.'));
+		}
+		if ( $this->correct_path($tmp_post->ID) ) {
+			if ( wp_redirect(add_query_arg('posted', 1, admin_url('upload.php'))) ) {
+				exit;
+			}
+		}
+		wp_die(esc_html__('Path correction failed.'));
 	}
 
 	public function admin_post_action_regenerate_images( $post_id = 0 ) {
@@ -288,11 +321,11 @@ class Media_Common extends Filters {
 		return false;
 	}
 
-	public function attach_image( $id ) {
-		if ( ! wp_attachment_is_image($id) ) {
+	public function attach_image( $attachment_id ) {
+		if ( ! wp_attachment_is_image($attachment_id) ) {
 			return false;
 		}
-		if ( (int) get_post_field('post_parent', $id, 'raw') > 0 ) {
+		if ( (int) get_post_field('post_parent', $attachment_id, 'raw') > 0 ) {
 			return false;
 		}
 		static $_published_posts = null;
@@ -326,7 +359,7 @@ class Media_Common extends Filters {
 			'meta_query' => array(
 				array(
 					'key' => '_thumbnail_id',
-					'value' => $id,
+					'value' => $attachment_id,
 				),
 			),
 			'include' => $_published_posts,
@@ -334,14 +367,76 @@ class Media_Common extends Filters {
 		if ( $tmp = ht_get_posts($args) ) {
 			$parent_id = reset($tmp);
 			global $wpdb;
-			$result = $wpdb->query($wpdb->prepare("UPDATE $wpdb->posts SET post_parent = %d WHERE post_type = 'attachment' AND ID IN (%d)", $parent_id, $id));
+			$result = $wpdb->query($wpdb->prepare("UPDATE $wpdb->posts SET post_parent = %d WHERE post_type = 'attachment' AND ID IN (%d)", $parent_id, $attachment_id));
 			if ( isset($result) ) {
-				do_action('wp_media_attach_action', 'attach', $id, $parent_id);
-				clean_attachment_cache($id);
+				do_action('wp_media_attach_action', 'attach', $attachment_id, $parent_id);
+				clean_attachment_cache($attachment_id);
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public function attachment_get_paths( $attachment_id ) {
+		static $_results = array();
+		if ( array_key_exists( $attachment_id, $_results) ) {
+			return $_results[ $attachment_id ];
+		}
+		static $_uploads_use_yearmonth_folders = null;
+		static $_upload_dir = array();
+		if ( is_null($_uploads_use_yearmonth_folders) ) {
+			$_uploads_use_yearmonth_folders = get_option('uploads_use_yearmonth_folders');
+			$_upload_dir = wp_get_upload_dir();
+		}
+		$_results[ $attachment_id ] = array(
+			'source' => null,
+			'destination' => null,
+		);
+		if ( ht_get_post_type($attachment_id) === 'attachment' ) {
+			if ( $path = get_attachment_path($attachment_id) ) {
+				$_results[ $attachment_id ]['source'] = $path;
+				$destination = $_upload_dir['basedir'];
+				if ( ! empty($_uploads_use_yearmonth_folders) ) {
+					if ( $datetime = get_post_datetime($attachment_id) ) {
+						$destination = path_join($destination, gmdate('Y/m', $datetime->format('U')));
+					}
+				}
+				$destination = path_join($destination, ht_basename($path));
+				$_results[ $attachment_id ]['destination'] = $destination;
+			}
+		}
+		return $_results[ $attachment_id ];
+	}
+
+	public function attachment_has_correct_path( $attachment_id ) {
+		$paths = $this->attachment_get_paths($attachment_id);
+		return safe_path($paths['source']) === safe_path($paths['destination']);
+	}
+
+	public function correct_all_paths() {
+		$args = array(
+			'post_type' => 'attachment',
+			'post_status' => 'any',
+			'numberposts' => -1,
+			'nopaging' => true,
+			'orderby' => 'modified',
+			'fields' => 'ids',
+		);
+		if ( $post_ids = ht_get_posts($args) ) {
+			foreach ( $post_ids as $post_id ) {
+				$this->correct_path($post_id);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public function correct_path( $attachment_id ) {
+		if ( $this->attachment_has_correct_path($attachment_id) ) {
+			return false;
+		}
+		$paths = $this->attachment_get_paths($attachment_id);
+		return attachment_move($attachment_id, $paths['destination']);
 	}
 
 	public function regenerate_all_images() {
@@ -353,10 +448,10 @@ class Media_Common extends Filters {
 			'orderby' => 'modified',
 			'fields' => 'ids',
 		);
-		$args = array(
-			'delete_old_sizes' => false,
-		);
 		if ( $post_ids = ht_get_posts($query_args) ) {
+			$args = array(
+				'delete_old_sizes' => false,
+			);
 			foreach ( $post_ids as $post_id ) {
 				$this->regenerate_images($post_id, $args);
 			}

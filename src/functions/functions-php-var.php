@@ -36,6 +36,8 @@ if ( ! function_exists('ht_var_dump') ) {
 		echo '<pre>';
 		if ( is_array($value) || is_object($value) || is_resource($value) ) {
 			print_r($value);
+		} elseif ( is_string($value) && empty($value) ) {
+			echo 'empty string';
 		} elseif ( is_string($value) || is_numeric($value) ) {
 			echo $value;
 		} elseif ( is_bool($value) ) {

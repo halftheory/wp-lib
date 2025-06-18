@@ -246,19 +246,20 @@ if ( ! function_exists('the_post_oembed_thumbnail') ) {
 		if ( ! $img ) {
 			return;
 		}
+		$label = $attr['alt'] ? wp_sprintf('%s: "%s"', __('Image'), $attr['alt']) : __('Image');
 		if ( is_singular() ) {
 			// Singular.
 			$div_class[] = 'singular';
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>">
-				<a href="<?php echo esc_url($attr['src']); ?>" aria-hidden="true" rel="lightbox"><?php echo wp_kses_post($img); ?></a>
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+				<a href="<?php echo esc_url($attr['src']); ?>" rel="lightbox"><?php echo wp_kses_post($img); ?></a>
 			</div>
 			<?php
 		} else {
 			// Archives.
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>">
-				<a href="<?php the_permalink(); ?>" aria-hidden="true"><?php echo wp_kses_post($img); ?></a>
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+				<a href="<?php the_permalink(); ?>"><?php echo wp_kses_post($img); ?></a>
 			</div>
 			<?php
 		}
