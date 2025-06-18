@@ -88,6 +88,7 @@ class Mail_Common extends Filters {
 		foreach ( $filters as $filter ) {
 			add_filter($filter, array( $this, 'public_antispambot_filter' ), 90);
 		}
+		add_filter('walker_nav_menu_start_el', array( $this, 'public_walker_nav_menu_start_el' ), 90, 4);
 	}
 
 	public function public_antispambot_filter( $text ) {
@@ -98,5 +99,15 @@ class Mail_Common extends Filters {
 			return $text;
 		}
 		return ht_antispambot($text);
+	}
+
+	public function public_walker_nav_menu_start_el( $item_output, $menu_item, $depth = 0, $args = null ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $item_output;
+		}
+		if ( ! content_is_ready_to_display($item_output, current_filter()) ) {
+			return $item_output;
+		}
+		return ht_antispambot($item_output);
 	}
 }

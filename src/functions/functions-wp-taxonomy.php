@@ -254,7 +254,7 @@ if ( ! function_exists('parse_ancestors_item') ) {
 					if ( empty($array['url']) ) {
 						$array['url'] = get_term_link($array['object_id']);
 					}
-					if ( empty($array['prepend']) ) {
+					if ( empty($array['prepend']) && $array['object_type'] ) {
 						if ( $taxonomy_labels = get_taxonomy_labels(get_taxonomy($array['object_type'])) ) {
 							$array['prepend'] = $taxonomy_labels->singular_name;
 						}

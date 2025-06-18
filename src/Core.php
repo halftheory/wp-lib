@@ -181,4 +181,12 @@ abstract class Core {
 		}
 		return $_result;
 	}
+
+	public function set( $key, $value ) {
+		if ( ! array_key_exists($key, $this->data) ) {
+			return false;
+		}
+		$this->data[ $key ] = $value;
+		return true;
+	}
 }

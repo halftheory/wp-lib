@@ -4,7 +4,7 @@ namespace Halftheory\Lib\helpers;
 if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Shortcode_Control.php') ) {
 	include_once __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Shortcode_Control.php';
 }
-use Halftheory\Lib\helpers\Shortcode_Control;
+use Halftheory\Lib\helpers\classes\Shortcode_Control;
 
 #[AllowDynamicProperties]
 class Shortcode_No_Embed extends Shortcode_Control {

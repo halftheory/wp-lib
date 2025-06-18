@@ -1,5 +1,5 @@
 <?php
-namespace Halftheory\Lib\helpers;
+namespace Halftheory\Lib\helpers\classes;
 
 use Halftheory\Lib\Filters;
 

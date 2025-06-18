@@ -1,0 +1,56 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l;
+
+.slicknav_menu {
+	text-align: left;
+	display: block;
+	@include l.breakpoint(md) {
+		display: none;
+	}
+}
+.slicknav_brand {
+	color: #fff;
+	@include l.link {
+		color: #fff;
+		text-decoration: none;
+		border-bottom: none;
+	}
+	@include l.hover {
+		color: #fff;
+		text-decoration: underline;
+	}
+	img {
+		max-height: 1.5rem;
+		width: auto;
+		vertical-align: middle;
+	}
+}
+a.slicknav_btn {
+	@include l.link(&) {
+		text-decoration: none;
+		border-bottom: none;
+	}
+}
+.slicknav_nav {
+	@include l.link {
+		color: #fff;
+		text-decoration: none;
+		border-bottom: none;
+	}
+	@include l.hover {
+		color: #222;
+		text-decoration: none;
+		border-bottom: none;
+	}
+	.slicknav_arrow {
+		color: #fff;
+	}
+}
+
+.nav-slicknav {
+	display: none;
+	@include l.breakpoint(md) {
+		display: block;
+	}
+}

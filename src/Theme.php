@@ -66,6 +66,7 @@ abstract class Theme extends Core {
 	}
 
 	final public function load_filters( $values, $data_key = '_filters' ) {
+		// Could be a single object, or an array of objects.
 		$callback = function ( $value ) {
 			if ( is_object($value) ) {
 				return $value;
@@ -81,111 +82,58 @@ abstract class Theme extends Core {
 	}
 
 	final public function load_helpers( $keys = '*', $data_key = '_helpers' ) {
-		if ( ! array_key_exists($data_key, $this->data) ) {
-			$this->data[ $data_key ] = array(
-				'files' => array(),
-				'loaded' => array(),
-			);
-			// Array of keys (file path) => value (filename).
-			$tmp = array_merge( $this->get_relative_files('helpers/*.php'), $this->get_relative_files('helpers/*/*.php') );
-			if ( ! empty($tmp) ) {
-				$callback = function ( $path ) {
-					return pathinfo($path, PATHINFO_FILENAME);
-				};
-				$this->data[ $data_key ]['files'] = array_combine($tmp, array_map($callback, $tmp));
-			}
+		if ( ! $this->setup_helpers($data_key) ) {
+			return false;
 		}
-		if ( empty($this->data[ $data_key ]['files']) ) {
-			return $this->data[ $data_key ]['loaded'];
+		if ( empty($this->data[ $data_key ]) ) {
+			return $this->data[ $data_key ];
 		}
-		$keys = $keys === '*' ? array_keys($this->data[ $data_key ]['files']) : make_array($keys);
+		$keys = $keys === '*' ? array_keys($this->data[ $data_key ]) : make_array($keys);
 		foreach ( $keys as $value ) {
-			// key = file path. already loaded.
-			if ( array_key_exists($value, $this->data[ $data_key ]['loaded']) ) {
-				continue;
-			}
 			// key = file path.
-			if ( isset($this->data[ $data_key ]['files'][ $value ]) ) {
-				$this->data[ $data_key ]['loaded'][ $value ] = array(
-					'key' => $this->data[ $data_key ]['files'][ $value ],
-					'value' => load_class_from_file($value),
-				);
-				unset($this->data[ $data_key ]['files'][ $value ]);
+			if ( isset($this->data[ $data_key ][ $value ]) ) {
+				// Already loaded.
+				if ( $this->data[ $data_key ][ $value ]['loaded'] ) {
+					continue;
+				}
+				// Load.
+				$this->data[ $data_key ][ $value ]['loaded'] = true;
+				$this->data[ $data_key ][ $value ]['class'] = get_class_from_file($value);
+				$this->data[ $data_key ][ $value ]['value'] = load_class_from_file($value);
 				continue;
 			}
 			// key = filename.
-			if ( in_array($value, $this->data[ $data_key ]['files']) ) {
-				$tmp = array_search($value, $this->data[ $data_key ]['files']);
-				if ( is_file($tmp) ) {
-					$this->data[ $data_key ]['loaded'][ $tmp ] = array(
-						'key' => $this->data[ $data_key ]['files'][ $tmp ],
-						'value' => load_class_from_file($tmp),
-					);
-					unset($this->data[ $data_key ]['files'][ $tmp ]);
+			if ( $file = array_search($value, wp_list_pluck($this->data[ $data_key ], 'key')) ) {
+				// Already loaded.
+				if ( $this->data[ $data_key ][ $file ]['loaded'] ) {
 					continue;
 				}
+				// Load.
+				$this->data[ $data_key ][ $file ]['loaded'] = true;
+				$this->data[ $data_key ][ $file ]['class'] = get_class_from_file($file);
+				$this->data[ $data_key ][ $file ]['value'] = load_class_from_file($file);
+				continue;
 			}
-			// fallback.
-			$this->data[ $data_key ]['loaded'][ $value ] = array(
+			// Fallback.
+			$this->data[ $data_key ][ $value ] = array(
 				'key' => $value,
-				'value' => false,
+				'file' => null,
+				'loaded' => true,
+				'class' => null,
+				'value' => null,
 			);
 		}
-		return $this->data[ $data_key ]['loaded'];
+		$callback = function ( $value ) {
+			return is_array($value) && array_key_exists('loaded', $value) ? $value['loaded'] : false;
+		};
+		return array_filter($this->data[ $data_key ], $callback);
 	}
 
 	final public function load_plugins( $keys = '*', $data_key = '_plugins' ) {
-		if ( ! array_key_exists($data_key, $this->data) ) {
-			$this->data[ $data_key ] = array(
-				'files' => array(),
-				'loaded' => array(),
-			);
-			// array of keys (file path) => value (plugin path).
-			foreach ( get_active_plugins() as $value ) {
-				$tmp = $this->get_relative_files('plugins' . DIRECTORY_SEPARATOR . $value);
-				if ( ! empty($tmp) ) {
-					$tmp = array_fill_keys($tmp, $value);
-					$this->data[ $data_key ]['files'] = $this->data[ $data_key ]['files'] + $tmp;
-				}
-			}
+		if ( ! $this->setup_plugins($data_key) ) {
+			return false;
 		}
-		if ( empty($this->data[ $data_key ]['files']) ) {
-			return $this->data[ $data_key ]['loaded'];
-		}
-		$keys = $keys === '*' ? array_keys($this->data[ $data_key ]['files']) : make_array($keys);
-		foreach ( $keys as $value ) {
-			// key = file path. already loaded.
-			if ( array_key_exists($value, $this->data[ $data_key ]['loaded']) ) {
-				continue;
-			}
-			// key = file path.
-			if ( isset($this->data[ $data_key ]['files'][ $value ]) ) {
-				$this->data[ $data_key ]['loaded'][ $value ] = array(
-					'key' => $this->data[ $data_key ]['files'][ $value ],
-					'value' => load_class_from_file($value),
-				);
-				unset($this->data[ $data_key ]['files'][ $value ]);
-				continue;
-			}
-			// key = filename.
-			if ( in_array($value, $this->data[ $data_key ]['files']) ) {
-				$tmp = array_search($value, $this->data[ $data_key ]['files']);
-				if ( is_file($tmp) ) {
-					$this->data[ $data_key ]['loaded'][ $tmp ] = array(
-						'key' => $this->data[ $data_key ]['files'][ $tmp ],
-						'value' => load_class_from_file($tmp),
-					);
-					unset($this->data[ $data_key ]['files'][ $tmp ]);
-					continue;
-				}
-			}
-			// fallback.
-			$this->data[ $data_key ]['loaded'][ $value ] = array(
-				'key' => $value,
-				'value' => false,
-			);
-		}
-		return $this->data[ $data_key ]['loaded'];
+		return $this->load_helpers($keys, $data_key);
 	}
 
 	final public function get_filters( $key = null, $data_key = '_filters' ) {
@@ -198,24 +146,105 @@ abstract class Theme extends Core {
 		return $this->data[ $data_key ];
 	}
 
-	final public function get_helper( $key, $data_key = '_helpers' ) {
-		if ( empty($key) || empty($data_key) ) {
+	final public function get_helper( $key, $field = null, $data_key = '_helpers' ) {
+		if ( empty($key) ) {
 			return false;
 		}
-		if ( ! isset($this->data[ $data_key ], $this->data[ $data_key ]['loaded']) ) {
+		if ( ! $this->setup_helpers($data_key) ) {
 			return false;
 		}
-		$tmp = array_search($key, wp_list_pluck($this->data[ $data_key ]['loaded'], 'key'));
-		if ( $tmp === false ) {
-			return false;
+		if ( $file = array_search($key, wp_list_pluck($this->data[ $data_key ], 'key')) ) {
+			if ( ! array_key_exists('class', $this->data[ $data_key ][ $file ]) ) {
+				$this->data[ $data_key ][ $file ]['class'] = get_class_from_file($file);
+			}
+			if ( ! array_key_exists('value', $this->data[ $data_key ][ $file ]) ) {
+				$this->data[ $data_key ][ $file ]['value'] = null;
+			}
+			if ( $field ) {
+				return array_key_exists($field, $this->data[ $data_key ][ $file ]) ? $this->data[ $data_key ][ $file ][ $field ] : null;
+			}
+			return $this->data[ $data_key ][ $file ];
 		}
-		if ( ! isset($this->data[ $data_key ]['loaded'][ $tmp ], $this->data[ $data_key ]['loaded'][ $tmp ]['value']) ) {
-			return false;
-		}
-		return $this->data[ $data_key ]['loaded'][ $tmp ]['value'];
+		return false;
 	}
 
-	final public function get_plugin( $key, $data_key = '_plugins' ) {
-		return $this->get_helper($key, $data_key);
+	final public function get_plugin( $key, $field = null, $data_key = '_plugins' ) {
+		if ( empty($key) ) {
+			return false;
+		}
+		if ( ! $this->setup_plugins($data_key) ) {
+			return false;
+		}
+		return $this->get_helper($key, $field, $data_key);
+	}
+
+	final public function set_helper( $key, $value, $data_key = '_helpers' ) {
+		if ( empty($key) ) {
+			return false;
+		}
+		if ( ! $this->setup_helpers($data_key) ) {
+			return false;
+		}
+		if ( $file = array_search($key, wp_list_pluck($this->data[ $data_key ], 'key')) ) {
+			$this->data[ $data_key ][ $file ]['loaded'] = true;
+			$this->data[ $data_key ][ $file ]['value'] = $value;
+			return true;
+		}
+		return false;
+	}
+
+	final public function set_plugin( $key, $value, $data_key = '_plugins' ) {
+		if ( empty($key) ) {
+			return false;
+		}
+		if ( ! $this->setup_plugins($data_key) ) {
+			return false;
+		}
+		return $this->set_helper($key, $value, $data_key);
+	}
+
+	private function setup_helpers( $data_key = '_helpers' ) {
+		if ( empty($data_key) ) {
+			return false;
+		}
+		if ( array_key_exists($data_key, $this->data) ) {
+			return true;
+		}
+		$this->data[ $data_key ] = array();
+		$tmp = array_merge( $this->get_relative_files('helpers/*.php'), $this->get_relative_files('helpers/classes/*.php') );
+		if ( ! empty($tmp) ) {
+			foreach ( $tmp as $file ) {
+				$this->data[ $data_key ][ $file ] = array(
+					'key' => pathinfo($file, PATHINFO_FILENAME),
+					'file' => $file,
+					'loaded' => false,
+				);
+			}
+		}
+		return true;
+	}
+
+	private function setup_plugins( $data_key = '_plugins' ) {
+		if ( empty($data_key) ) {
+			return false;
+		}
+		if ( array_key_exists($data_key, $this->data) ) {
+			return true;
+		}
+		$this->data[ $data_key ] = array();
+		// array of keys (file path) => value (plugin path).
+		foreach ( get_active_plugins() as $key ) {
+			$tmp = $this->get_relative_files('plugins' . DIRECTORY_SEPARATOR . $key);
+			if ( ! empty($tmp) ) {
+				foreach ( $tmp as $file ) {
+					$this->data[ $data_key ][ $file ] = array(
+						'key' => $key,
+						'file' => $file,
+						'loaded' => false,
+					);
+				}
+			}
+		}
+		return true;
 	}
 }

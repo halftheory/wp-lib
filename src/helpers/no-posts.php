@@ -4,7 +4,7 @@ namespace Halftheory\Lib\helpers;
 if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Remove_Post_Type.php') ) {
 	include_once __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Remove_Post_Type.php';
 }
-use Halftheory\Lib\helpers\Remove_Post_Type;
+use Halftheory\Lib\helpers\classes\Remove_Post_Type;
 
 #[AllowDynamicProperties]
 class No_Posts extends Remove_Post_Type {

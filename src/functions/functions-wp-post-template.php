@@ -126,7 +126,7 @@ if ( ! function_exists('the_excerpt_fallback') ) {
 			if ( ! is_array($value) ) {
 				continue;
 			}
-			// find content.
+			// Find content.
 			switch ( $key ) {
 				case 'content':
 					$tmp = get_the_content('', false, $post);
@@ -175,7 +175,7 @@ if ( ! function_exists('the_excerpt_fallback') ) {
 				default:
 					break;
 			}
-			// formatting.
+			// Formatting.
 			if ( isset($search[ $key ]) ) {
 				if ( isset($value['callbacks']) && is_array($value['callbacks']) ) {
 					foreach ( $value['callbacks'] as $callback ) {
@@ -196,7 +196,7 @@ if ( ! function_exists('the_excerpt_fallback') ) {
 		if ( empty($search) ) {
 			return $excerpt;
 		}
-		// final formatting.
+		// Final formatting.
 		if ( isset($args['callbacks']) && is_array($args['callbacks']) ) {
 			foreach ( $args['callbacks'] as $callback ) {
 				if ( ! is_callable($callback) ) {

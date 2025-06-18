@@ -606,7 +606,7 @@ if ( ! function_exists('get_current_screen_id') ) {
 }
 
 if ( ! function_exists('ht_remove_menu_page') ) {
-	function ht_remove_menu_page( $menu_slug, $submenu_slug = null ) {
+	function ht_remove_menu_page( $menu_slug ) {
 		$result = false;
 		if ( ! isset($GLOBALS['menu']) ) {
 			return $result;

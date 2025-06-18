@@ -1,0 +1,79 @@
+@charset 'UTF-8';
+@use 'libs/sass' as *;
+@use 'libs/libs' as l with ( $handle: 'gallery' );
+
+.gallery {
+    &.#{l.$handle}-gap-{
+        @for $i from 0 through 9 {
+            &#{$i} {
+                gap: #{$i * l.$spacer};
+            }
+        }
+    }
+
+    @supports (aspect-ratio: 1/1) {
+        &.#{l.$handle}-ratio-1-1,
+        &.#{l.$handle}-ratio-4-3,
+        &.#{l.$handle}-ratio-16-9,
+        &.#{l.$handle}-ratio-21-9,
+        &.#{l.$handle}-ratio-3-4,
+        &.#{l.$handle}-ratio-9-16,
+        &.#{l.$handle}-ratio-9-21 {
+            .gallery-item {
+                .gallery-icon {
+                    > a {
+                    }
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-1-1 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 1/1;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-4-3 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 4/3;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-16-9 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 16/9;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-21-9 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 21/9;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-3-4 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 3/4;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-9-16 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 9/16;
+                }
+            }
+        }
+        &.#{l.$handle}-ratio-9-21 {
+            .gallery-item {
+                .gallery-icon {
+                    aspect-ratio: 9/21;
+                }
+            }
+        }
+    }
+}
