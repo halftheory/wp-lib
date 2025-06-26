@@ -18,6 +18,14 @@
       if (!$(selector + ' ' + options.itemSelector).length) {
         continue;
       }
+      // Remove gutter selector if not found.
+      if (options.hasOwnProperty('gutter')) {
+        if (!Number.isInteger(options.gutter)) {
+          if (!$(selector + ' ' + options.gutter).length) {
+            options.gutter = 0;
+          }
+        }
+      }
       $(selector).first().packery(options).addClass('has-packery');
     }
   };

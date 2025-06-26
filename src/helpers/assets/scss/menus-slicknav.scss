@@ -8,6 +8,9 @@
 	@include l.breakpoint(md) {
 		display: none;
 	}
+	@media print {
+		display: none;
+	}
 }
 .slicknav_brand {
 	color: #fff;

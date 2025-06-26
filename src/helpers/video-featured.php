@@ -12,8 +12,8 @@ class Video_Featured extends Filters {
 
 	protected static $filters = array();
 
-	public function __construct( $autoload = true, $post_types = array() ) {
-		$this->data['post_types'] = empty($post_types) ? array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))) : $post_types;
+	public function __construct( $autoload = true, $post_types = null ) {
+		$this->data['post_types'] = is_null($post_types) ? array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))) : make_array($post_types);
 		$this->load_functions('video-common,video-featured');
 		parent::__construct($autoload);
 	}
@@ -69,7 +69,7 @@ class Video_Featured extends Filters {
 			if ( ! in_array($post->post_type, $this->data['post_types']) ) {
 				return;
 			}
-			echo $this->post_video_html($post, get_post_video_id($post));
+			echo $this->post_video_html(get_post_video_id($post), $post);
 		};
 		add_meta_box(
 			'postvideodiv',
@@ -95,9 +95,9 @@ class Video_Featured extends Filters {
 		// Update options, only on Edit>Post page.
 		if ( isset($_POST, $_POST['_wpnonce']) ) {
 			if ( wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . $post_id) ) {
-				$video_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
-				if ( $video_id > 0 ) {
-					set_post_video($post, $video_id);
+				$attachment_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : 0;
+				if ( $attachment_id > 0 ) {
+					set_post_video($post, $attachment_id);
 				} else {
 					delete_post_video($post);
 				}
@@ -127,11 +127,8 @@ class Video_Featured extends Filters {
 		if ( ! in_array($post->post_type, $this->data['post_types']) ) {
 			return $settings;
 		}
-		$video_id = -1;
-		if ( $tmp = get_post_video_id($post) ) {
-			$video_id = $tmp;
-		}
-		$settings['post']['videoFeaturedId'] = $video_id;
+		$attachment_id = (int) get_post_video_id($post);
+		$settings['post']['videoFeaturedId'] = $attachment_id > 0 ? $attachment_id : -1;
 		return $settings;
 	}
 
@@ -148,25 +145,26 @@ class Video_Featured extends Filters {
 		if ( ! current_user_can('edit_post', $post_id) ) {
 			wp_die(-1);
 		}
-		$video_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : null;
+		$attachment_id = isset($_POST['video_id']) ? (int) $_POST['video_id'] : null;
 		// For backward compatibility, -1 refers to no featured video.
-		if ( $video_id === -1 ) {
-			$video_id = null;
+		if ( $attachment_id === -1 ) {
+			$attachment_id = null;
 		}
-		$return = $this->post_video_html($post_id, $video_id);
+		$return = $this->post_video_html($attachment_id, $post_id);
 		wp_send_json_success($return);
 	}
 
 	// Functions.
 
-	private function post_video_html( $post = null, $attachment_id = null ) {
+	private function post_video_html( $attachment_id = null, $post = null ) {
+		// Based on wp-admin/includes/post.php > _wp_post_thumbnail_html.
 		$post = get_post($post);
 		if ( ! $post ) {
 			return '';
 		}
 		$upload_iframe_src = get_upload_iframe_src('video', $post->ID);
 
-		$html = '';
+		$content = '';
 		$video_html = '';
 
 		if ( $attachment_id && get_post($attachment_id) ) {
@@ -183,16 +181,16 @@ class Video_Featured extends Filters {
 		}
 
 		if ( ! empty($video_html) ) {
-			$html = wp_sprintf(
+			$content = wp_sprintf(
 				'<p class="hide-if-no-js"><a href="%s" id="set-post-video"%s class="thickbox" style="text-decoration: none; color: inherit; font-weight: bold; text-align: center; display: block;">%s</a></p>',
 				esc_url($upload_iframe_src),
 				' aria-describedby="set-post-video-desc"',
 				$video_html
 			);
-			$html .= '<p class="hide-if-no-js howto" id="set-post-video-desc">' . esc_html__('Click the icon to update') . '</p>';
-			$html .= '<p class="hide-if-no-js"><a href="#" id="remove-post-video">' . esc_html__('Remove featured video') . '</a></p>';
+			$content .= '<p class="hide-if-no-js howto" id="set-post-video-desc">' . esc_html__('Click the icon to update') . '</p>';
+			$content .= '<p class="hide-if-no-js"><a href="#" id="remove-post-video">' . esc_html__('Remove featured video') . '</a></p>';
 		} else {
-			$html = wp_sprintf(
+			$content = wp_sprintf(
 				'<p class="hide-if-no-js"><a href="%s" id="set-post-video"%s class="thickbox">%s</a></p>',
 				esc_url($upload_iframe_src),
 				'', // Empty when there's no featured image set, `aria-describedby` attribute otherwise.
@@ -200,7 +198,7 @@ class Video_Featured extends Filters {
 			);
 		}
 
-		$html .= '<input type="hidden" id="video_id" name="video_id" value="' . esc_attr( $attachment_id ? $attachment_id : '-1' ) . '" />';
-		return $html;
+		$content .= '<input type="hidden" id="video_id" name="video_id" value="' . esc_attr( $attachment_id ? $attachment_id : '-1' ) . '" />';
+		return $content;
 	}
 }

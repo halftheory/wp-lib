@@ -1,4 +1,8 @@
 <?php
+if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'functions-video-common.php') ) {
+	include_once __DIR__ . DIRECTORY_SEPARATOR . 'functions-video-common.php';
+}
+
 if ( ! function_exists('delete_post_video') ) {
 	function delete_post_video( $post = null ) {
 		$post = get_post($post);

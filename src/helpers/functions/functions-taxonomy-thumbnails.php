@@ -1,4 +1,8 @@
 <?php
+if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-taxonomy.php') ) {
+	include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-taxonomy.php';
+}
+
 if ( ! function_exists('delete_term_thumbnail') ) {
 	function delete_term_thumbnail( $term ) {
 		$term = ht_get_term($term);

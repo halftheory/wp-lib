@@ -1,4 +1,8 @@
 <?php
+if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-post.php') ) {
+	include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-post.php';
+}
+
 if ( ! function_exists('get_video_context') ) {
 	function get_video_context( $context, $attachment_id, $attr = array() ) {
 		if ( ht_get_post_type($attachment_id) !== 'attachment' ) {

@@ -205,8 +205,10 @@ class Gallery_Carousel extends Filters {
 		unset($gallery_defaults['carousel'], $gallery_defaults['extend_width']);
 		?>
 <script type="text/html" id="tmpl-<?php echo esc_attr(static::$handle); ?>">
-	<span class="setting"><hr /></span>
-	<h2><?php esc_html_e('Carousel Settings'); ?></h2>
+	<span class="setting">
+		<hr />
+		<h2 style="margin-top: 0;"><?php esc_html_e('Carousel Settings'); ?></h2>
+	</span>
 	<span class="setting">
 		<input type="checkbox" id="<?php echo esc_attr(static::$handle); ?>-active" name="carousel" data-setting="carousel" />
 		<label for="<?php echo esc_attr(static::$handle); ?>-active" class="checkbox-label-inline"><?php esc_html_e('Create Carousel?'); ?></label>

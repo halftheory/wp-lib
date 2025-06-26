@@ -48,7 +48,7 @@ class Menus_Slicknav extends Filters {
 		}
 		$file = __DIR__ . '/assets/css/menus-slicknav.css';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_style(static::$handle, $url, array( $array['package'] ), get_file_version($file), 'screen');
+			wp_enqueue_style(static::$handle, $url, array( $array['package'] ), get_file_version($file), 'all');
 		}
 		// JS.
 		$fallback = __DIR__ . '/assets/dist/slicknav/dist/jquery.slicknav' . min_scripts() . '.js';
