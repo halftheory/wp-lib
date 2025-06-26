@@ -208,8 +208,8 @@ if ( ! function_exists('strip_tag') ) {
 		$string = preg_replace('/[\s]*<' . $tag . ' [^>]*>(.*?)<\/[\s]*' . $tag . '>[\s]*/is', $replacement, $string);
 		$string = preg_replace('/[\s]*<' . $tag . '>(.*?)<\/[\s]*' . $tag . '>[\s]*/is', $replacement, $string);
 		// No closing tag.
-		$string = preg_replace('/[\s]*<' . $tag . ' [^>]+>[\s]*/is', '', $string);
-		$string = preg_replace('/[\s]*<' . $tag . '[\s]*[\/]?>[\s]*/is', '', $string);
+		$string = preg_replace('/[\s]*<' . $tag . ' [^>]+>/is', '', $string);
+		$string = preg_replace('/[\s]*<' . $tag . '[\/]?>/is', '', $string);
 		return $string;
 	}
 }

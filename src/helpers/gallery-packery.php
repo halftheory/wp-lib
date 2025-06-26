@@ -20,7 +20,12 @@ class Gallery_Packery extends Filters {
 		$this->data['gallery_defaults'] = array(
 			'gapless' => false,
 		);
-		$this->data['gallery_items'] = array();
+		$this->data['gallery_items'] = array(
+			'.packery-wrapper' => array(
+				'itemSelector' => '.packery-item',
+				'gutter' => '.gutter-sizer',
+			),
+		);
 		// Global.
 		if ( is_public() ) {
 			// Public.
@@ -99,7 +104,7 @@ class Gallery_Packery extends Filters {
 		$file = __DIR__ . '/assets/css/gallery-packery.css';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
 			$deps = wp_style_is('gallery_common') ? array( 'gallery_common' ) : array();
-			wp_enqueue_style(static::$handle, $url, $deps, get_file_version($file), 'screen');
+			wp_enqueue_style(static::$handle, $url, $deps, get_file_version($file), 'all');
 		}
 		// js.
 		$fallback = __DIR__ . '/assets/dist/packery/dist/packery.pkgd.min.js';

@@ -186,6 +186,24 @@ if ( ! function_exists('ht_register_taxonomy') ) {
 	}
 }
 
+if ( ! function_exists('ht_the_taxonomies') ) {
+	function ht_the_taxonomies( $args = array() ) {
+		$defaults = array(
+			'post'   => 0,
+			'before' => '',
+			'sep'    => ' ',
+			'after'  => '',
+		);
+		$parsed_args = wp_parse_args($args, $defaults);
+		// Display only when there are taxonomies.
+		$taxonomies = get_the_taxonomies($parsed_args['post'], $parsed_args);
+		if ( empty($taxonomies) ) {
+			return;
+		}
+		echo $parsed_args['before'] . implode($parsed_args['sep'], $taxonomies) . $parsed_args['after'];
+	}
+}
+
 if ( ! function_exists('parse_ancestors_args') ) {
 	function parse_ancestors_args( $object_id = null, $object_type = '', $resource_type = '' ) {
 		if ( $object_id && $object_type && $resource_type ) {

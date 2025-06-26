@@ -248,17 +248,17 @@ if ( ! function_exists('get_excerpt') ) {
 		$string = maybe_specialchars_decode($string);
 
 		// Remove what we don't need.
-		// no tabs.
+		// No tabs.
 		$string = preg_replace('/[\t]+/s', ' ', $string);
 		// no script/style tags.
 		foreach ( array( 'script', 'style' ) as $tag ) {
 			$string = strip_tag($string, $tag, false);
 		}
-		// no shortcodes.
+		// No shortcodes.
 		$string = ht_strip_shortcodes($string);
-		// no emojis.
+		// No emojis.
 		$string = preg_replace('/&#(8[0-9]{3}|9[0-9]{3}|1[0-9]{4});/s', '', $string);
-		// remove repeating symbols, emojis.
+		// Remove repeating symbols, emojis.
 		$no_repeat = array( '&lt;', '&gt;', '&amp;', '&ndash;', '&bull;', '&sect;', '&hearts;', '&hellip;', '...', '++', '--', '~~', '##', '**', '==', '__', '_ ', '//' );
 		foreach ( $no_repeat as $value ) {
 			if ( str_contains($string, $value) ) {
@@ -272,7 +272,7 @@ if ( ! function_exists('get_excerpt') ) {
 						break;
 					}
 					$string = preg_replace('/[\r\n ]+/s', ' ', $string);
-					// insert a space next to newlines just in case.
+					// Insert a space next to newlines just in case.
 					$block_tags = array(
 						'blockquote',
 						'br',

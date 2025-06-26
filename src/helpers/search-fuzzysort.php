@@ -12,9 +12,26 @@ class Search_Fuzzysort extends Filters {
 
 	protected static $filters = array();
 
-	public function __construct( $autoload = true, $fuzzysort_options = array(), $search_data_args = array() ) {
-		$this->data['fuzzysort_options'] = $fuzzysort_options;
-		$this->data['search_data_args'] = $search_data_args;
+	public function __construct( $autoload = true, $fuzzysort_options = array(), $search_data_args = array(), $search_data_posts_args = array() ) {
+		$defaults = array(
+			'all' => false,
+			'key' => 'title',
+			'limit' => 10,
+			'threshold' => 0.5,
+		);
+		$this->data['fuzzysort_options'] = wp_parse_args($fuzzysort_options, $defaults);
+
+		$defaults = array(
+			'authors' => false,
+			'feeds' => false,
+			'links' => false,
+			'posts' => true,
+			'terms' => true,
+		);
+		$this->data['search_data_args'] = wp_parse_args($search_data_args, $defaults);
+
+		$this->data['search_data_posts_args'] = $search_data_posts_args;
+
 		parent::__construct($autoload);
 	}
 
@@ -111,17 +128,11 @@ class Search_Fuzzysort extends Filters {
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
 			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
 			// Format data.
-			$defaults = array(
-				'all' => false,
-				'key' => 'title',
-				'limit' => 10,
-				'threshold' => 0.5,
-			);
 			$data = array(
 				'selector' => 'input.search-field',
 				'jsonUrl' => $json_url,
 				'searchUrl' => ht_get_search_link(),
-				'options' => wp_parse_args($this->data['fuzzysort_options'], $defaults),
+				'options' => $this->data['fuzzysort_options'],
 				'__' => array(
 					'viewAllResults' => __('View all results'),
 				),
@@ -242,15 +253,8 @@ class Search_Fuzzysort extends Filters {
 		return false;
 	}
 
-	public function get_search_data( $args = array(), $format = 'json' ) {
-		$defaults = array(
-			'authors' => false,
-			'feeds' => false,
-			'links' => false,
-			'posts' => true,
-			'terms' => true,
-		);
-		$args = wp_parse_args($args, $defaults);
+	public function get_search_data( $args = null, $format = 'json', $posts_args = null ) {
+		$args = is_array($args) ? $args : $this->data['search_data_args'];
 
 		$func_format_item = function ( $value ) {
 			$item = array(
@@ -377,15 +381,18 @@ class Search_Fuzzysort extends Filters {
 					break;
 
 				case 'posts':
-					$posts_args = array(
-						'post_type' => array_values(array_value_unset(get_post_types(array( 'public' => true ), 'names'), 'attachment')), // todo - how to include attachments?
+					$posts_args = is_array($posts_args) ? $posts_args : $this->data['search_data_posts_args'];
+					$posts_args = array_diff_key($posts_args, array( 'fields' => null, 'nopaging' => null ));
+					$defaults = array(
+						'post_type' => array_values(array_value_unset(get_post_types(array( 'public' => true ), 'names'), 'attachment')),
 						'fields' => 'ids',
 						'nopaging' => true,
 						'orderby' => 'title',
 						'order' => 'ASC',
 					);
+					$posts_args = wp_parse_args($posts_args, $defaults);
 					if ( $id = $this->get_json_id() ) {
-						$posts_args['exclude'] = array( $id );
+						$posts_args['exclude'] = isset($posts_args['exclude']) ? array_merge(make_array($posts_args['exclude']), array( $id )) : array( $id );
 					}
 					$posts = ht_get_posts($posts_args);
 					if ( ! $posts ) {
