@@ -148,6 +148,21 @@ if ( ! function_exists('get_post_taxonomy_archive') ) {
 	}
 }
 
+if ( ! function_exists('ht_get_page_by_path') ) {
+	function ht_get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
+		if ( $post = get_page_by_path($page_path, $output, $post_type) ) {
+			return $post;
+		}
+		// Attachments with a post_parent will fail.
+		$parts = explode('/', trim($page_path, '/'));
+		global $wpdb;
+		if ( $tmp = $wpdb->get_var($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_name = %s AND post_type = %s AND post_status IN (%s, %s) ORDER BY ID ASC", end($parts), $post_type), 'publish', 'inherit') ) {
+			return get_post($tmp, $output);
+		}
+		return null;
+	}
+}
+
 if ( ! function_exists('ht_get_post_type') ) {
 	function ht_get_post_type( $post = null ) {
 		// store results in a static var. key = id, value = post_type.

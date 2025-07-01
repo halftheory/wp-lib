@@ -13,7 +13,7 @@ class Remove_Taxonomy extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true, $taxonomy = null ) {
-		$this->data['taxonomy'] = $taxonomy ? $taxonomy : null;
+		$this->data['taxonomy'] = $taxonomy;
 		parent::__construct($autoload);
 	}
 

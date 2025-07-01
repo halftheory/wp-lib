@@ -25,7 +25,7 @@ if ( ! function_exists('get_taxonomy_from_page_path') ) {
 			}
 			$array = explode('/', $slug);
 			reset($array);
-			if ( $tmp = get_page_by_path(current($array), $post->post_type) ) {
+			if ( $tmp = get_page_by_path(current($array), OBJECT, $post->post_type) ) {
 				if ( (int) $tmp->ID === (int) $post->ID ) {
 					return $taxonomy;
 				}
@@ -173,6 +173,7 @@ if ( ! function_exists('ht_register_taxonomy') ) {
 					'singular_name' => $label_singular,
 				),
 				'public' => true,
+				'show_admin_column' => true,
 				'rewrite' => array(
 					'slug' => rtrim(strtolower($taxonomy), 's') . 's',
 					'with_front' => false,

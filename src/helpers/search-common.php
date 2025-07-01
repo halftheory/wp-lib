@@ -65,10 +65,6 @@ class Search_Common extends Filters {
 		if ( isset($query_vars['s']) ) {
 			// Clean the search string.
 			$query_vars['s'] = trim(str_replace('%20', ' ', replace_spaces($query_vars['s'])));
-			// Add most public post types.
-			if ( ! array_key_exists('post_type', $query_vars) ) {
-				$query_vars['post_type'] = array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' )));
-			}
 		}
 		return $query_vars;
 	}
@@ -112,7 +108,7 @@ class Search_Common extends Filters {
 
 	public function search_form( $args = array(), $display = true ) {
 		// https://developer.wordpress.org/reference/functions/get_search_form/
-		// theme()->get_helper('search-common')->search_form();
+		// theme()->get_helper('search-common', 'value')->search_form();
 		$defaults = array(
 			'autocomplete' => false,
 			'autofocus' => true,

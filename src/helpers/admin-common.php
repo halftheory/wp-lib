@@ -211,7 +211,7 @@ class Admin_Common extends Filters {
 		$func_reorder_menus = function ( $array ) {
 			$array = make_array($array);
 			if ( ! empty($array) ) {
-				// let's reorder it based on some strings.
+				// Let's reorder it based on some strings.
 				$top = array();
 				foreach ( array( 'primary', 'main', 'header', 'nav' ) as $v ) {
 					foreach ( $array as $key => $value ) {

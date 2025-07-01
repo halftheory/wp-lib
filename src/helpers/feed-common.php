@@ -45,9 +45,8 @@ class Feed_Common extends Filters {
 			return $query_vars;
 		}
 		if ( isset($query_vars['feed']) ) {
-			// remove some post_types from feed.
-			$query_vars['post_type'] = isset($query_vars['post_type']) ? make_array($query_vars['post_type']) : array_values(get_post_types(array( 'public' => true ), 'names'));
-			$query_vars['post_type'] = array_values(array_diff($query_vars['post_type'], array( 'page', 'attachment', 'revision' )));
+			// Remove some post_types from feed.
+			$query_vars['post_type'] = isset($query_vars['post_type']) ? make_array($query_vars['post_type']) : array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'page', 'attachment', 'revision' )));
 		}
 		return $query_vars;
 	}

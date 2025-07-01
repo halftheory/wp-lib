@@ -13,7 +13,7 @@ class Remove_Post_Type extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true, $post_type = null ) {
-		$this->data['post_type'] = $post_type ? $post_type : null;
+		$this->data['post_type'] = $post_type;
 		parent::__construct($autoload);
 	}
 

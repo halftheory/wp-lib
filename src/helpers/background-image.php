@@ -22,7 +22,7 @@ class Background_Image extends Filters {
 			'default-attachment' => 'fixed',
 		);
 		$this->data['background_defaults'] = wp_parse_args($background_defaults, $defaults);
-		$this->data['post_types'] = is_null($post_types) ? array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))) : make_array($post_types);
+		$this->data['post_types'] = is_array($post_types) ? $post_types : array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' )));
 		parent::__construct($autoload);
 	}
 

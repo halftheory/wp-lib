@@ -541,6 +541,17 @@ class Search_Fuzzysort extends Filters {
 		if ( $filename = $this->get_json_path() ) {
 			$success = ht_wp_filesystem('direct')->put_contents($filename, $data);
 			unset($data);
+			if ( $success ) {
+				$post_date = current_time('mysql');
+				$postarr = array(
+					'ID' => $this->get_json_id(),
+					'post_modified' => $post_date,
+					'post_modified_gmt' => get_gmt_from_date($post_date),
+				);
+				self::remove_filter('admin_attachment_updated');
+				wp_update_post(wp_slash($postarr), true);
+				self::add_filter('admin_attachment_updated');
+			}
 			return $success ? $filename : false;
 		}
 		// New file.
@@ -578,6 +589,7 @@ class Search_Fuzzysort extends Filters {
 		$post_data = array(
 			'post_author' => $post_author,
 			'post_excerpt' => __('System file: helper "search-fuzzysort".'),
+			'post_date' => current_time('mysql'), // Ensures the file is uploaded into the correct year/month folder.
 		);
 		$id = media_handle_sideload($file_array, 0, $basename, $post_data);
 		if ( ! $id || is_wp_error($id) ) {

@@ -79,7 +79,7 @@ class Menus_Slicknav extends Filters {
 	// Functions.
 
 	public function nav_menu() {
-		// theme()->get_helper('menus-slicknav')->nav_menu();
+		// theme()->get_helper('menus-slicknav', 'value')->nav_menu();
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}

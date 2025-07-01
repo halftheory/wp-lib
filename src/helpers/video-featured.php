@@ -13,7 +13,7 @@ class Video_Featured extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true, $post_types = null ) {
-		$this->data['post_types'] = is_null($post_types) ? array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))) : make_array($post_types);
+		$this->data['post_types'] = is_array($post_types) ? $post_types : array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' )));
 		$this->load_functions('video-common,video-featured');
 		parent::__construct($autoload);
 	}

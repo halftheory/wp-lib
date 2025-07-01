@@ -172,7 +172,7 @@ class Menus_Smartmenus extends Filters {
 	// Functions.
 
 	public function menu_button( $type = 'smartmenus' ) {
-		// theme()->get_helper('menus-smartmenus')->menu_button();
+		// theme()->get_helper('menus-smartmenus', 'value')->menu_button();
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}

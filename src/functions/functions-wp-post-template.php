@@ -137,14 +137,12 @@ if ( ! function_exists('the_excerpt_fallback') ) {
 					break;
 
 				case 'children':
-					$post_types = array_values(get_post_types(array( 'public' => true ), 'names' ));
-					$post_types = array_values(array_diff($post_types, array( 'attachment', 'revision' )));
 					$children_args = array(
 						'post_parent' => $post->ID,
 						'orderby' => 'menu_order',
 						'order' => 'ASC',
 						'post_status' => array( 'publish', 'inherit' ),
-						'post_type' => $post_types,
+						'post_type' => array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' ))),
 						'fields' => 'ids',
 						'nopaging' => true,
 					);

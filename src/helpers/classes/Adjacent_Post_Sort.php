@@ -13,8 +13,8 @@ class Adjacent_Post_Sort extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true, $post_type = null, $orderby = null ) {
-		$this->data['post_type'] = $post_type ? $post_type : null;
-		$this->data['orderby'] = $orderby ? $orderby : null;
+		$this->data['post_type'] = $post_type;
+		$this->data['orderby'] = $orderby;
 		parent::__construct($autoload);
 	}
 

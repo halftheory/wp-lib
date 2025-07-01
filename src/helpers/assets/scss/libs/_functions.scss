@@ -1,6 +1,106 @@
 @use 'sass' as *;
 @use 'variables' as v;
 
+@function grid-column($columns, $breakpoint) {
+	$values: (
+		1: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 1,
+		    md: 1,
+		    lg: 1,
+		    xl: 1,
+		    xxl: 1,
+		    xxxl: 1
+		),
+		2: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 2,
+		    lg: 2,
+		    xl: 2,
+		    xxl: 2,
+		    xxxl: 2
+		),
+		3: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 3,
+		    lg: 3,
+		    xl: 3,
+		    xxl: 3,
+		    xxxl: 3
+		),
+		4: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 3,
+		    lg: 4,
+		    xl: 4,
+		    xxl: 4,
+		    xxxl: 4
+		),
+		5: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 3,
+		    lg: 4,
+		    xl: 5,
+		    xxl: 5,
+		    xxxl: 5
+		),
+		6: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 3,
+		    lg: 4,
+		    xl: 6,
+		    xxl: 6,
+		    xxxl: 6
+		),
+		7: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 3,
+		    lg: 5,
+		    xl: 7,
+		    xxl: 7,
+		    xxxl: 7
+		),
+		8: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 4,
+		    lg: 6,
+		    xl: 8,
+		    xxl: 8,
+		    xxxl: 8
+		),
+		9: (
+		    xxs: 1,
+		    xs: 1,
+		    sm: 2,
+		    md: 4,
+		    lg: 6,
+		    xl: 9,
+		    xxl: 9,
+		    xxxl: 9
+		)
+	);
+	$result: 1;
+	@if map-get($values, $columns, $breakpoint) {
+		$result: map-get($values, $columns, $breakpoint);
+	}
+	@return $result;
+}
+
 @function make-time($value, $unit: 's') {
 	@if meta-type-of($value) == 'number' and not math-compatible($value, 1s) and not math-compatible($value, 1ms) {
 		$value: #{strip-unit($value)}#{$unit};

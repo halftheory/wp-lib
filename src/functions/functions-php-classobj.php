@@ -9,6 +9,7 @@ if ( ! function_exists('get_class_from_file') ) {
 		$_results[ $file ] = false;
 		if ( is_file($file) ) {
 			if ( ! in_array($file, get_included_files()) ) {
+				// File needs to be included.
 				$old = get_declared_classes();
 				if ( is_readable($file) ) {
 					include_once $file;
@@ -16,6 +17,40 @@ if ( ! function_exists('get_class_from_file') ) {
 				$new = array_diff(get_declared_classes(), $old);
 				if ( count($new) > 0 ) {
 					$_results[ $file ] = reset($new);
+				}
+			} elseif ( $contents = file_get_contents($file, false, null, 0, 1024) ) {
+				// Maybe a child class already included it.
+				$namespace = null;
+				$string = 'namespace ';
+				if ( $array = preg_split('/(' . $string . '[\w\\\]+)/is', $contents, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) ) {
+					$callback_filter = function ( $value ) use ( $string ) {
+						return str_starts_with($value, $string);
+					};
+					$callback_map = function ( $value ) use ( $string ) {
+						return preg_replace('/^' . $string . '/s', '', $value, 1);
+					};
+					$array = array_filter($array, $callback_filter);
+					$array = array_map($callback_map, $array);
+					$namespace = trim(current($array), '\\');
+				}
+				$class = null;
+				$string = 'class ';
+				if ( $array = preg_split('/(' . $string . '[\w]+)/is', $contents, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) ) {
+					$callback_filter = function ( $value ) use ( $string ) {
+						return str_starts_with($value, $string);
+					};
+					$callback_map = function ( $value ) use ( $string ) {
+						return preg_replace('/^' . $string . '/s', '', $value, 1);
+					};
+					$array = array_filter($array, $callback_filter);
+					$array = array_map($callback_map, $array);
+					$class = current($array);
+				}
+				if ( $namespace || $class ) {
+					$tmp = implode('\\', array_filter(array( $namespace, $class )));
+					if ( in_array($tmp, get_declared_classes()) ) {
+						$_results[ $file ] = $tmp;
+					}
 				}
 			}
 		}

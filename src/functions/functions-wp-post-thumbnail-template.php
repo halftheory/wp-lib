@@ -203,7 +203,7 @@ if ( ! function_exists('post_thumbnail_id_fallback') ) {
 					foreach ( $array as $file ) {
 						// Remove size suffix.
 						$guid = preg_replace('/\-[0-9]+x[0-9]+(\.[\w]+)$/s', '$1', $file, 1);
-						if ( $attachment_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_parent = %d AND guid LIKE %s", 'attachment', 0, '%' . $wpdb->esc_like($guid))) ) {
+						if ( $attachment_id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_parent = %d AND guid LIKE %s ORDER BY ID ASC", 'attachment', 0, '%' . $wpdb->esc_like($guid))) ) {
 							$attachment_id = (int) $attachment_id;
 							if ( $func_test($attachment_id) ) {
 								$thumbnail_id = $attachment_id;
