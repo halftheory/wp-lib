@@ -382,6 +382,7 @@ if ( ! function_exists('get_excerpt') ) {
 			}
 		}
 		if ( ! empty($regex_array) || ! empty($regex_array_values) ) {
+			$string = trim($string);
 			$regex_run = true;
 			while ( $regex_run ) {
 				$regex_run = false;
