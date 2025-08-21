@@ -110,8 +110,8 @@ abstract class Core {
 			$tmp = array_merge( $this->get_relative_files('functions-*.php'), $this->get_relative_files('functions/*.php') );
 			$tmp = array_diff($tmp, array_keys($_files), array_keys($_loaded));
 			if ( ! empty($tmp) ) {
-				$callback = function ( $path ) {
-					return preg_replace('/^functions-/', '', pathinfo($path, PATHINFO_FILENAME), 1);
+				$callback = function ( $v ) {
+					return preg_replace('/^functions-/', '', pathinfo($v, PATHINFO_FILENAME), 1);
 				};
 				$tmp = array_combine($tmp, array_map($callback, $tmp));
 				$_files = $_files + $tmp;

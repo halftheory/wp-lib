@@ -23,11 +23,11 @@ if ( ! function_exists('get_class_from_file') ) {
 				$namespace = null;
 				$string = 'namespace ';
 				if ( $array = preg_split('/(' . $string . '[\w\\\]+)/is', $contents, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) ) {
-					$callback_filter = function ( $value ) use ( $string ) {
-						return str_starts_with($value, $string);
+					$callback_filter = function ( $v ) use ( $string ) {
+						return str_starts_with($v, $string);
 					};
-					$callback_map = function ( $value ) use ( $string ) {
-						return preg_replace('/^' . $string . '/s', '', $value, 1);
+					$callback_map = function ( $v ) use ( $string ) {
+						return preg_replace('/^' . $string . '/s', '', $v, 1);
 					};
 					$array = array_filter($array, $callback_filter);
 					$array = array_map($callback_map, $array);
@@ -36,11 +36,11 @@ if ( ! function_exists('get_class_from_file') ) {
 				$class = null;
 				$string = 'class ';
 				if ( $array = preg_split('/(' . $string . '[\w]+)/is', $contents, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) ) {
-					$callback_filter = function ( $value ) use ( $string ) {
-						return str_starts_with($value, $string);
+					$callback_filter = function ( $v ) use ( $string ) {
+						return str_starts_with($v, $string);
 					};
-					$callback_map = function ( $value ) use ( $string ) {
-						return preg_replace('/^' . $string . '/s', '', $value, 1);
+					$callback_map = function ( $v ) use ( $string ) {
+						return preg_replace('/^' . $string . '/s', '', $v, 1);
 					};
 					$array = array_filter($array, $callback_filter);
 					$array = array_map($callback_map, $array);

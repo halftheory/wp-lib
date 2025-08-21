@@ -510,8 +510,8 @@ if ( ! function_exists('attachment_move') ) {
 					}
 					if ( ! empty($replace_pairs) ) {
 						$replace_pairs = array_unique($replace_pairs);
-						$callback = function ( $value ) {
-							return set_url_scheme($value, 'http');
+						$callback = function ( $v ) {
+							return set_url_scheme($v, 'http');
 						};
 						$replace_pairs = $replace_pairs + array_combine(array_map($callback, array_keys($replace_pairs)), array_map($callback, $replace_pairs));
 						foreach ( $posts as $post ) {

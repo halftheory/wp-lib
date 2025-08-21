@@ -47,3 +47,18 @@ if ( ! function_exists('pagination_args') ) {
 		return wp_parse_args($args, $defaults);
 	}
 }
+
+if ( ! function_exists('wp_get_url_path') ) {
+	function wp_get_url_path( $url = null, $trim = true ) {
+		$url = empty($url) ? get_current_url() : url_strip_query($url);
+		$search = array(
+			untrailingslashit(set_url_scheme(home_url(), 'https')),
+			untrailingslashit(set_url_scheme(home_url(), 'http')),
+		);
+		$result = str_replace($search, '', $url);
+		if ( $url === $result ) {
+			return false;
+		}
+		return $trim ? trim($result, ' /') : $result;
+	}
+}

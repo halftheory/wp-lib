@@ -3,8 +3,8 @@ if ( ! function_exists('get_active_plugins') ) {
 	function get_active_plugins( $blog_ids = null ) {
 		// array of keys (file path) => value (plugin path).
 		$results = array();
-		$callback = function ( $string ) {
-			return str_replace_start(trailingslashit(WP_PLUGIN_DIR), '', $string);
+		$callback = function ( $v ) {
+			return str_replace_start(trailingslashit(WP_PLUGIN_DIR), '', $v);
 		};
 		if ( is_multisite() && ! empty($blog_ids) ) {
 			// multisite.

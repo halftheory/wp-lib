@@ -22,12 +22,13 @@ class Media_Common extends Filters {
 		add_filter('big_image_size_threshold', array( $this, 'global_big_image_size_threshold' ), 10, 4);
 		add_filter('intermediate_image_sizes', array( $this, 'global_intermediate_image_sizes' ));
 		add_filter('image_downsize', array( $this, 'global_image_downsize' ), 10, 3);
-		add_filter('upload_mimes', array( $this, 'global_upload_mimes' ), 90);
+		add_filter('upload_mimes', array( $this, 'global_upload_mimes' ), 90, 2);
 		if ( is_public() ) {
 			// Public.
 			remove_action('wp_head', 'wp_print_auto_sizes_contain_css_fix', 1);
 			add_filter('img_caption_shortcode_width', '__return_zero');
 			add_filter('wp_get_attachment_url', array( $this, 'public_wp_get_attachment_url' ), 10, 2);
+			add_filter('wp_get_attachment_image_attributes', array( $this, 'public_wp_get_attachment_image_attributes' ), 20, 3);
 		} else {
 			// Admin.
 			add_action('after_switch_theme', array( $this, 'admin_after_switch_theme' ), 10, 2);
@@ -105,20 +106,15 @@ class Media_Common extends Filters {
 		return $out;
 	}
 
-	public function global_upload_mimes( $mimes ) {
+	public function global_upload_mimes( $t, $user = null ) {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
-			return $mimes;
+			return $t;
 		}
 		$array = array(
-			'svg' => 'image/svg+xml',
-			'svgz' => 'image/svg+xml',
+			'svg|svgz' => 'image/svg+xml',
+			'webp' => 'image/webp',
 		);
-		foreach ( $array as $key => $value ) {
-			if ( ! isset($mimes[ $key ]) ) {
-				$mimes[ $key ] = $value;
-			}
-		}
-		return $mimes;
+		return $t + $array;
 	}
 
 	// Public.
@@ -132,6 +128,16 @@ class Media_Common extends Filters {
 			$url = set_url_scheme($url);
 		}
 		return $url;
+	}
+
+	public function public_wp_get_attachment_image_attributes( $attr, $attachment, $size ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $attr;
+		}
+		if ( ! isset($attr['alt']) || empty($attr['alt']) ) {
+			$attr['alt'] = get_attachment_alt($attachment);
+		}
+		return $attr;
 	}
 
 	// Admin.

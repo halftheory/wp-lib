@@ -241,8 +241,8 @@ if ( ! function_exists('get_excerpt') ) {
 			'last_character' => '\w' . preg_quote(':;@&%=+$?_.-#/>)»', '/'),
 			'space' => '[\s]*',
 			'tag_open' => '<[\w]+[^>]*>',
-			'url' => '((https?|ftp)://)([a-z0-9+!*(),;?&=\$_.-]+(:[a-z0-9+!*(),;?&=\$_.-]+)?@)?([a-z0-9-.]*)\.([a-z]{2,13})(:[0-9]{2,5})?(/([a-z0-9+\$_%-]\.?)+)*/?(\?[a-z+&\$_.-][a-z0-9;:@&%=+/\$_.-]*)?(#[a-z_.-][a-z0-9+$%_.-]*)?',
-			'url_www' => 'www\.([a-z0-9-.]*)\.([a-z]{2,13})(:[0-9]{2,5})?(/([a-z0-9+\$_%-]\.?)+)*/?(\?[a-z+&\$_.-][a-z0-9;:@&%=+/\$_.-]*)?(#[a-z_.-][a-z0-9+$%_.-]*)?',
+			'url' => '(https?|ftp):\/\/([a-z0-9+!*(),;?&=\$_.-]+(:[a-z0-9+!*(),;?&=\$_.-]+)?@)?[a-z0-9-.]+\.[a-z]{2,13}(:[0-9]{2,5})?(\/[a-z0-9+\$_%-.]*)?(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?(#[a-z_.-][a-z0-9+$%_.-]*)?',
+			'url_www' => 'www\.[a-z0-9-.]+\.[a-z]{2,13}(:[0-9]{2,5})?(\/[a-z0-9+\$_%-.]*)?(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?(#[a-z_.-][a-z0-9+$%_.-]*)?',
 		);
 
 		$string = maybe_specialchars_decode($string);
@@ -250,7 +250,7 @@ if ( ! function_exists('get_excerpt') ) {
 		// Remove what we don't need.
 		// No tabs.
 		$string = preg_replace('/[\t]+/s', ' ', $string);
-		// no script/style tags.
+		// No script/style tags.
 		foreach ( array( 'script', 'style' ) as $tag ) {
 			$string = strip_tag($string, $tag, false);
 		}
@@ -311,8 +311,8 @@ if ( ! function_exists('get_excerpt') ) {
 					if ( $tmp = get_urls($string) ) {
 						$string = str_replace($tmp, '', $string);
 					}
-					$string = preg_replace('/' . preg_quote($regex_patterns['url'], '/') . $regex_patterns['space'] . '/is', '', $string);
-					$string = preg_replace('/' . preg_quote($regex_patterns['url_www'], '/') . $regex_patterns['space'] . '/is', '', $string);
+					$string = preg_replace('/' . $regex_patterns['url'] . $regex_patterns['space'] . '/is', '', $string);
+					$string = preg_replace('/' . $regex_patterns['url_www'] . $regex_patterns['space'] . '/is', '', $string);
 					break;
 
 				default:

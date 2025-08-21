@@ -199,6 +199,10 @@ class Taxonomy_Image_Category extends Add_Taxonomy {
 		if ( did_filter('request') === 0 ) {
 			return;
 		}
+		// Skip function 'get_attached_media'.
+		if ( did_filter('get_attached_media_args') > did_filter('get_attached_media') ) {
+			return;
+		}
 		// Add post_status for attachments.
 		if ( in_array('attachment', make_array($query->get('post_type'))) && ! in_array('inherit', make_array($query->get('post_status'))) ) {
 			$tmp = make_array($query->get('post_status'));

@@ -96,10 +96,10 @@ class Microdata extends Filters {
 			'itemscope' => true,
 			'itemtype' => true,
 		);
-		$callback = function ( $value ) use ( $array ) {
-			$value = $value + $array;
-			ksort($value);
-			return $value;
+		$callback = function ( $v ) use ( $array ) {
+			$v = $v + $array;
+			ksort($v);
+			return $v;
 		};
 		$html = array_map($callback, $html);
 		return $html;

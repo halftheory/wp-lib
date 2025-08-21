@@ -5,9 +5,10 @@ if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' .
 
 if ( ! function_exists('delete_term_thumbnail') ) {
 	function delete_term_thumbnail( $term ) {
-		$term = ht_get_term($term);
-		if ( $term ) {
-			return delete_term_meta($term->term_id, '_thumbnail_id');
+		if ( $tmp = ht_get_term($term) ) {
+			return delete_term_meta($tmp->term_id, '_thumbnail_id');
+		} elseif ( is_numeric($term) ) {
+			return delete_term_meta($term, '_thumbnail_id');
 		}
 		return false;
 	}
@@ -31,12 +32,7 @@ if ( ! function_exists('get_the_term_thumbnail') ) {
 			return '';
 		}
 		$term_thumbnail_id = get_term_thumbnail_id($term);
-		if ( $term_thumbnail_id ) {
-			$html = wp_get_attachment_image($term_thumbnail_id, $size, false, $attr);
-		} else {
-			$html = '';
-		}
-		return $html;
+		return $term_thumbnail_id ? get_image_context('img', $term_thumbnail_id, $size, $attr) : '';
 	}
 }
 

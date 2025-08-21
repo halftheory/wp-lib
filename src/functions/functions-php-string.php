@@ -125,7 +125,7 @@ if ( ! function_exists('remove_excess_space') ) {
 		$string = maybe_specialchars_decode($string);
 		$string = replace_spaces($string);
 		if ( str_contains($string, '</') ) {
-			// no space after opening tag or before closing tag.
+			// No space after opening tag or before closing tag.
 			$array = array(
 				'h1',
 				'h2',
@@ -144,18 +144,18 @@ if ( ! function_exists('remove_excess_space') ) {
 			}
 		}
 		if ( str_contains($string, '<br') ) {
-			// no br at start/end.
+			// No br at start/end.
 			$string = preg_replace('/^[\s]*<br[\/ ]*>[\s]*/is', '', $string);
 			$string = preg_replace('/[\s]*<br[\/ ]*>[\s]*$/is', '', $string);
-			// limit to max 2 brs.
+			// Limit to max 2 brs.
 			$string = preg_replace('/(<br[\/ ]*>[\s]*){3,}/is', '$1$1', $string);
-			// no br directly next to p tags.
+			// No br directly next to p tags.
 			$string = preg_replace('/(<[\/ ]*p[\s]*>|<p [^>]+>)[\s]*<br[\/ ]*>[\s]*/is', '$1', $string);
 			$string = preg_replace('/[\s]*<br[\/ ]*>[\s]*(<[\/ ]*p[\s]*>|<p [^>]+>)/is', '$1', $string);
 		}
-		// no tabs next to newlines.
+		// No tabs next to newlines.
 		$string = preg_replace("/[\t ]*([\n\r]+)[\t ]*/s", '$1', $string);
-		// limit repeating newlines and spaces.
+		// Limit repeating newlines and spaces.
 		$string = preg_replace("/(\n|\r){3,}/s", "\n\n", $string);
 		$string = preg_replace('/[ ]{2,}/s', ' ', $string);
 		return trim($string);

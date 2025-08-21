@@ -1,7 +1,68 @@
 <?php
+if ( ! function_exists('get_attachment_alt') ) {
+	function get_attachment_alt( $post = null, $default = '' ) {
+		$default = trim( (string) $default);
+		$post = get_post($post);
+		if ( ! $post ) {
+			return $default;
+		}
+		if ( ht_get_post_type($post->ID) !== 'attachment' ) {
+			return $default;
+		}
+		if ( empty($default) ) {
+			if ( wp_attachment_is('audio', $post) ) {
+				$default = __('Audio');
+			} elseif ( wp_attachment_is('image', $post) ) {
+				$default = __('Image');
+			} elseif ( wp_attachment_is('video', $post) ) {
+				$default = __('Video');
+			} else {
+				$default = __('Document');
+			}
+		}
+		$title = is_attachment_title_ok(the_title_attribute(array( 'echo' => false, 'post' => $post )), $post);
+		if ( ! $title && (int) $post->post_parent > 0 && is_post_publicly_viewable($post->post_parent) ) {
+			$title = is_title_ok(the_title_attribute(array( 'echo' => false, 'post' => $post->post_parent )));
+		}
+		return $title ? wp_sprintf('%s: "%s"', $default, $title) : $default;
+	}
+}
+
+if ( ! function_exists('is_attachment_title_ok') ) {
+	function is_attachment_title_ok( $title, $post = null ) {
+		$title = trim( (string) $title);
+		if ( empty($title) ) {
+			return false;
+		}
+		$post = get_post($post);
+		if ( ! $post ) {
+			return false;
+		}
+		if ( ht_get_post_type($post->ID) !== 'attachment' ) {
+			return false;
+		}
+		$filename = pathinfo(ht_basename($post->guid), PATHINFO_FILENAME);
+		if ( sanitize_file_name($title) === $filename ) {
+			return false;
+		}
+		$bad_starts = array(
+			$filename,
+			preg_replace('/[-_]+/', ' ', $filename),
+			'IMG_',
+		);
+		foreach ( $bad_starts as $value ) {
+			if ( str_starts_with($title, $value) ) {
+				return false;
+			}
+		}
+		return $title;
+	}
+}
+
 if ( ! function_exists('is_title_ok') ) {
 	function is_title_ok( $title, $bad_titles = array() ) {
-		if ( empty(trim($title)) ) {
+		$title = trim( (string) $title);
+		if ( empty($title) ) {
 			return false;
 		}
 		$defaults = array(
@@ -23,7 +84,7 @@ if ( ! function_exists('is_title_ok') ) {
 		}
 		$bad_titles = array_merge($defaults, make_array($bad_titles));
 		$bad_titles = array_merge($bad_titles, array_map('strtolower', $bad_titles));
-		return in_array( (string) trim($title), $bad_titles) ? false : $title;
+		return in_array($title, $bad_titles) ? false : $title;
 	}
 }
 
@@ -159,11 +220,10 @@ if ( ! function_exists('the_excerpt_fallback') ) {
 						break;
 					}
 					$func_striptax = function ( $v = '' ) {
-						$v = preg_replace('/^###[^#]*###/i', '', $v);
-						return is_title_ok($v) ? $v : '';
+						return preg_replace('/^###[^#]*###/i', '', $v);
 					};
 					$tmp = array_map($func_striptax, $tmp);
-					$tmp = array_filter($tmp);
+					$tmp = array_filter($tmp, 'is_title_ok');
 					if ( empty($tmp) ) {
 						break;
 					}

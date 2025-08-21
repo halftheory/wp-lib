@@ -32,9 +32,9 @@ if ( ! function_exists('ht_has_filter') ) {
 			return false;
 		}
 		$result = $wp_filter[ $hook_name ]->has_filter($hook_name, $callback);
-		// check for class names.
+		// Check for class names.
 		if ( $result === false && is_array($callback) && count($callback) > 1 ) {
-			// clear the keys.
+			// Clear the keys.
 			$callback = array_values($callback);
 			if ( is_string($callback[0]) && is_string($callback[1]) && method_exists($callback[0], $callback[1]) ) {
 				foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {

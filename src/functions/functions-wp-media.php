@@ -83,12 +83,20 @@ if ( ! function_exists('get_image_context') ) {
 				break;
 			case 'img':
 				// <img
+				$defaults = array(
+					'alt' => get_attachment_alt($attachment_id),
+				);
+				$attr = wp_parse_args($attr, $defaults);
 				if ( $tmp = wp_get_attachment_image($attachment_id, $size, false, $attr) ) {
 					$result = $tmp;
 				}
 				break;
 			case 'link':
 				// <a href="large.jpg"><img
+				$defaults = array(
+					'alt' => get_attachment_alt($attachment_id),
+				);
+				$attr = wp_parse_args($attr, $defaults);
 				if ( $tmp = wp_get_attachment_link($attachment_id, $size, false, false, false, $attr) ) {
 					$result = $tmp;
 				}

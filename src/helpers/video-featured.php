@@ -168,14 +168,11 @@ class Video_Featured extends Filters {
 		$video_html = '';
 
 		if ( $attachment_id && get_post($attachment_id) ) {
-			$array = array();
 			$size = has_image_size('post-thumbnail') ? 'post-thumbnail' : array( 266, 266 );
-			if ( has_post_thumbnail($attachment_id) ) {
-				$array[] = get_the_post_thumbnail($attachment_id, $size);
-			} else {
-				$array[] = wp_get_attachment_image($attachment_id, $size, true);
-			}
-			$array[] = get_the_title($attachment_id);
+			$array = array(
+				has_post_thumbnail($attachment_id) ? get_the_post_thumbnail($attachment_id, $size) : wp_get_attachment_image($attachment_id, $size, true),
+				get_the_title($attachment_id),
+			);
 			$array = array_map('trim', $array);
 			$video_html = implode('<br />', array_filter($array));
 		}

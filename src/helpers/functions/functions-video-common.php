@@ -36,9 +36,7 @@ if ( ! function_exists('get_video_context') ) {
 			case 'link':
 				// <a href="file.mp4"><video
 				if ( $tmp = get_video_context('video', $attachment_id, $attr) ) {
-					$title = the_title_attribute(array( 'echo' => false, 'post' => get_post($attachment_id) ));
-					$label = $title ? wp_sprintf('%s: "%s"', __('Video'), $title) : __('Video');
-					$result = '<a href="' . esc_url(wp_get_attachment_url($attachment_id)) . '" aria-label="' . esc_attr($label) . '">' . $tmp . '</a>';
+					$result = '<a href="' . esc_url(wp_get_attachment_url($attachment_id)) . '" aria-label="' . esc_attr(get_attachment_alt($attachment_id)) . '">' . $tmp . '</a>';
 				}
 				break;
 			case 'video':
@@ -71,7 +69,7 @@ if ( ! function_exists('get_video_context') ) {
 					$result = wp_sprintf('<video %s>', implode(' ', $attr_strings));
 					$type = get_post_mime_type($attachment_id);
 					// Trick Chrome into playing .mov files.
-					if ( $type === 'video/quicktime' && ! empty($_SERVER['HTTP_USER_AGENT']) ) {
+					if ( $type === 'video/quicktime' && isset($_SERVER['HTTP_USER_AGENT']) && ! empty($_SERVER['HTTP_USER_AGENT']) ) {
 						if ( str_contains($_SERVER['HTTP_USER_AGENT'], 'Chrome') ) {
   							$type = 'video/mp4';
   						}

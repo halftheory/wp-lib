@@ -68,6 +68,33 @@ if ( ! function_exists('in_array_int') ) {
 	}
 }
 
+if ( ! function_exists('in_array_substr') ) {
+	function in_array_substr( $needle, $haystack, $element = 'value' ) {
+		$needle = (string) $needle;
+		$haystack = make_array($haystack);
+		$callback = function ( $v ) use ( $needle ) {
+			return str_contains($v, $needle);
+		};
+		switch ( $element ) {
+			case 'value':
+				return array_find($haystack, $callback);
+				break;
+			case 'key':
+				return array_find_key($haystack, $callback);
+				break;
+			case 'any':
+				return array_any($haystack, $callback);
+				break;
+			case 'all':
+				return array_all($haystack, $callback);
+				break;
+			default:
+				break;
+		}
+		return false;
+	}
+}
+
 if ( ! function_exists('make_array') ) {
 	function make_array( $value, $sep = ',' ) {
 		if ( is_array($value) ) {

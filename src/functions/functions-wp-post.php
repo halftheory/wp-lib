@@ -165,7 +165,7 @@ if ( ! function_exists('ht_get_page_by_path') ) {
 
 if ( ! function_exists('ht_get_post_type') ) {
 	function ht_get_post_type( $post = null ) {
-		// store results in a static var. key = id, value = post_type.
+		// Store results in a static var. key = id, value = post_type.
 		static $_results = array();
 		if ( is_numeric($post) && array_key_exists( (int) $post, $_results) ) {
 			return $_results[ $post ];

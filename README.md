@@ -70,15 +70,18 @@ Available helpers include:
 
 - admin-common
 - authors-common
+- background-image
 - feed-common
 - gallery-carousel
 - gallery-common
+- gallery-packery
 - gallery-ratio
 - i18n-common
 - mail-common
 - media-common
 - menus-slicknav
 - menus-smartmenus
+- microdata
 - minify
 - no-authors
 - no-blocks
@@ -86,8 +89,12 @@ Available helpers include:
 - no-comments
 - no-posts
 - no-tags
+- search-common
+- search-fuzzysort
+- security-common
 - shortcode-code
 - shortcode-no-embed
+- taxonomy-hide-term
 - taxonomy-thumbnails
 - video-common
 - video-featured
@@ -114,11 +121,11 @@ After `composer init` add the following to your `composer.json` file:
         "type": "package",
         "package": {
             "name": "halftheory/wp-lib",
-            "version": "1.0.8",
+            "version": "1.0.10",
             "source": {
                 "url": "https://github.com/halftheory/wp-lib/",
                 "type": "git",
-                "reference": "1.0.8"
+                "reference": "1.0.10"
             }
         }
     }
@@ -140,6 +147,7 @@ require __DIR__ . '/vendor/autoload.php';
 ```
 
 ## Credits
+- [Apache Ultimate Bad Bot and Spam Referrer Blocker](https://github.com/mitchellkrogza/apache-ultimate-bad-bot-blocker/) (helper: `security-common`)
 - [Fuzzysort](https://github.com/farzher/fuzzysort/) (helper: `search-fuzzysort`)
 - [Minify](https://github.com/mrclay/minify/) (helper: `minify`)
 - [Packery](https://packery.metafizzy.co/) (helper: `gallery-packery`)
@@ -152,4 +160,3 @@ require __DIR__ . '/vendor/autoload.php';
 - Helpers:
     - cdn
     - infinite-scroll
-- More microdata functions.

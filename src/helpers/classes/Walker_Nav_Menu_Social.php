@@ -638,7 +638,7 @@ class Walker_Nav_Menu_Social extends Walker_Nav_Menu {
 
 		// Replace title with icon.
 		if ( $fa_classes ) {
-			$title = '<i class="' . esc_attr(implode(' ', $fa_classes)) . '" title="' . esc_attr($title) . '"></i>';
+			$title = '<span class="screen-reader-text">"' . esc_html($title) . '</span><i class="' . esc_attr(implode(' ', $fa_classes)) . '" title="' . esc_attr($title) . '"></i>';
 		}
 
 		/**
@@ -728,13 +728,13 @@ class Walker_Nav_Menu_Social extends Walker_Nav_Menu {
 	public function get_fa_classes( $menu_item ) {
 		$fa_classes = array( 'fa-brands' );
 		// Menu classes - Find exact brand.
-		$tmp = array_intersect($menu_item->classes, $this->fa_brands);
+		$tmp = array_intersect(make_array($menu_item->classes), $this->fa_brands);
 		if ( ! empty($tmp) ) {
 			return array_merge($fa_classes, $tmp);
 		}
 		// Menu classes - Find other icons (maybe not brands).
 		$tmp = array();
-		foreach ( $menu_item->classes as $value ) {
+		foreach ( make_array($menu_item->classes) as $value ) {
 			if ( str_starts_with($value, 'fa-') ) {
 				$tmp[] = $value;
 			}
@@ -754,16 +754,16 @@ class Walker_Nav_Menu_Social extends Walker_Nav_Menu {
 		$tmp = array();
 		foreach ( $matches as $match ) {
 			// Exact.
-			$callback = function ( $value ) use ( $match ) {
-				return $value === $match || $value === 'fa-' . $match;
+			$callback = function ( $v ) use ( $match ) {
+				return $v === $match || $v === 'fa-' . $match;
 			};
 			$tmp = array_filter($this->fa_brands, $callback);
 			if ( ! empty($tmp) ) {
 				break;
 			}
 			// Partial.
-			$callback = function ( $value ) use ( $match ) {
-				return str_contains($value, $match);
+			$callback = function ( $v ) use ( $match ) {
+				return str_contains($v, $match);
 			};
 			$tmp = array_filter($this->fa_brands, $callback);
 			if ( ! empty($tmp) ) {

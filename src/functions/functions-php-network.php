@@ -16,6 +16,7 @@ if ( ! function_exists('get_visitor_ip') ) {
 						$_result = stripslashes($_SERVER['REMOTE_ADDR']);
 					}
 				}
+				$_result = filter_var($_result, FILTER_VALIDATE_IP) ? $_result : false;
 			}
 		}
 		return $_result;

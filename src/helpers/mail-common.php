@@ -38,7 +38,7 @@ class Mail_Common extends Filters {
 			$phpmailer->ClearAllRecipients();
 			return;
 		}
-        // add plain text version.
+        // Add plain text version.
         if ( $phpmailer->ContentType !== 'text/plain' && empty($phpmailer->AltBody) ) {
             $phpmailer->AltBody = remove_excess_space(wp_strip_all_tags($phpmailer->Body));
         }

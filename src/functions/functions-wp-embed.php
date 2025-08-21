@@ -6,12 +6,16 @@ if ( ! function_exists('get_oembed_providers_hosts') ) {
 			$_results = array();
 			$oembed = _wp_oembed_get_object();
 			if ( is_object($oembed) && isset($oembed->providers) ) {
-				$_results = $oembed->providers;
+				$all = array_values(array_unique(wp_list_pluck($oembed->providers, 0)));
 				// Reduce the list to host and path.
-				$callback = function ( $value ) {
-					return wp_parse_url($value[0], PHP_URL_HOST) . wp_parse_url($value[0], PHP_URL_PATH);
+				$callback1 = function ( $v ) {
+					return wp_parse_url($v, PHP_URL_HOST) . untrailingslashit(wp_parse_url($v, PHP_URL_PATH));
 				};
-				$_results = array_values(sort_longest_first(array_unique(array_map($callback, $_results))));
+				// Reduce the list to host.
+				$callback2 = function ( $v ) {
+					return wp_parse_url($v, PHP_URL_HOST);
+				};
+				$_results = array_values(sort_longest_first(array_unique(array_merge(array_map($callback1, $all), array_map($callback2, $all)))));
 			}
 		}
 		return $_results;
@@ -65,20 +69,19 @@ if ( ! function_exists('get_oembed_providers_hosts_by_type') ) {
 			$args = $array;
 		}
 		// Find the hosts.
-		$results = array();
-		foreach ( make_array($object_types) as $type ) {
-			if ( array_key_exists($type, $args) ) {
-				foreach ( $args[ $type ] as $value ) {
-					foreach ( $hosts as $host ) {
-						if ( str_contains($host, $value) ) {
-							$results[] = $host;
-							$results[] = $value;
-						}
-					}
-				}
-			}
+		$search = array();
+		$tmp = array_intersect_key($args, array_combine(make_array($object_types), make_array($object_types)));
+		foreach ( $tmp as $key => $value ) {
+			$search = array_merge($search, $value);
 		}
-		return array_values(sort_longest_first(array_unique($results)));
+		if ( empty($search) ) {
+			return $search;
+		}
+		$callback = function ( $v ) use ( $search ) {
+			return str_replace($search, '', $v) !== $v;
+		};
+		$results = array_values(array_filter($hosts, $callback));
+		return $results;
 	}
 }
 
@@ -120,7 +123,7 @@ if ( ! function_exists('get_post_oembed_object_thumbnail_context') ) {
 		}
 		$defaults = array(
 			'src' => isset($thumbnail->thumbnail_url) ? set_url_scheme($thumbnail->thumbnail_url) : '',
-			'alt' => '',
+			'alt' => __('Thumbnail'),
 			'width' => isset($thumbnail->thumbnail_width) ? absint($thumbnail->thumbnail_width) : '',
 			'height' => isset($thumbnail->thumbnail_height) ? absint($thumbnail->thumbnail_height) : '',
 		);
@@ -176,11 +179,9 @@ if ( ! function_exists('get_post_oembed_object_url') ) {
 			return false;
 		}
 		foreach ( $urls as $url ) {
-			foreach ( $hosts as $host ) {
-				if ( str_contains($url, $host) ) {
-					if ( $oembed->get_data($url, array( 'discover' => false )) ) {
-						return $url;
-					}
+			if ( $url !== str_replace($hosts, '', $url) ) {
+				if ( $oembed->get_data($url, array( 'discover' => false )) ) {
+					return $url;
 				}
 			}
 		}
@@ -227,11 +228,9 @@ if ( ! function_exists('the_post_oembed_thumbnail') ) {
 			return;
 		}
 		// Add more attributes.
+		$title = the_title_attribute('echo=0');
 		$defaults = array(
-			'alt' => the_title_attribute('echo=0'),
-		);
-		$div_class = array(
-			'post-oembed-thumbnail',
+			'alt' => $title ? wp_sprintf('%s: "%s"', __('Thumbnail'), $title) : __('Thumbnail'),
 		);
 		if ( $attr['width'] && $attr['height'] ) {
 			if ( $orientation = get_image_orientation($attr['width'], $attr['height']) ) {
@@ -239,6 +238,9 @@ if ( ! function_exists('the_post_oembed_thumbnail') ) {
 			}
 		}
 		$attr = wp_parse_args($attr, $defaults);
+		$div_class = array(
+			'post-oembed-thumbnail',
+		);
 		if ( isset($attr['class']) ) {
 			$div_class[] = trim($attr['class']);
 		}
@@ -246,19 +248,18 @@ if ( ! function_exists('the_post_oembed_thumbnail') ) {
 		if ( ! $img ) {
 			return;
 		}
-		$label = $attr['alt'] ? wp_sprintf('%s: "%s"', __('Image'), $attr['alt']) : __('Image');
 		if ( is_singular() ) {
 			// Singular.
 			$div_class[] = 'singular';
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($attr['alt']); ?>">
 				<a href="<?php echo esc_url($attr['src']); ?>" rel="lightbox"><?php echo wp_kses_post($img); ?></a>
 			</div>
 			<?php
 		} else {
 			// Archives.
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($attr['alt']); ?>">
 				<a href="<?php the_permalink(); ?>"><?php echo wp_kses_post($img); ?></a>
 			</div>
 			<?php

@@ -18,24 +18,13 @@ if ( ! function_exists('get_current_url') ) {
 				}
 			}
 		}
-		$result = $_url;
-		if ( $strip_query ) {
-			// Strip the query string.
-			$remove = array();
-			if ( $tmp = parse_url($result, PHP_URL_QUERY) ) {
-				$remove[] = '?' . trim($tmp, ' ?');
-			}
-			if ( $tmp = parse_url($result, PHP_URL_FRAGMENT) ) {
-				$remove[] = '#' . trim($tmp, ' #');
-			}
-			$result = str_replace($remove, '', $result);
-		}
-		return $result;
+		return $strip_query ? url_strip_query($_url) : $_url;
 	}
 }
 
 if ( ! function_exists('get_url_path') ) {
-	function get_url_path( $url, $trim = true ) {
+	function get_url_path( $url = null, $trim = true ) {
+		$url = empty($url) ? get_current_url() : url_strip_query($url);
 		$result = parse_url($url, PHP_URL_PATH);
 		return $trim ? trim($result, ' /') : $result;
 	}
@@ -99,33 +88,20 @@ if ( ! function_exists('is_ssl') ) {
 
 if ( ! function_exists('path_in_url') ) {
 	function path_in_url( $path, $url = null ) {
+		$path = trim($path, ' /');
 		if ( empty($path) ) {
 			return false;
-		}
-		if ( empty($url) ) {
-			$url = get_current_url();
-		} else {
-			// Strip the query string.
-			$remove = array();
-			if ( $tmp = parse_url($url, PHP_URL_QUERY) ) {
-				$remove[] = '?' . trim($tmp, ' ?');
-			}
-			if ( $tmp = parse_url($url, PHP_URL_FRAGMENT) ) {
-				$remove[] = '#' . trim($tmp, ' #');
-			}
-			$url = str_replace($remove, '', $url);
 		}
 		$url_path = get_url_path($url);
 		if ( empty($url_path) ) {
 			return false;
 		}
-		$path_path = trim($path, ' /');
 		// Try the whole path.
-		if ( $url_path === $path_path ) {
+		if ( $url_path === $path ) {
 			return true;
 		}
 		// Try the end.
-		if ( str_ends_with($url_path, '/' . $path_path) ) {
+		if ( str_ends_with($url_path, '/' . $path) ) {
 			return true;
 		}
 		return false;
@@ -156,5 +132,21 @@ if ( ! function_exists('url_exists') ) {
 			}
 		}
 		return true;
+	}
+}
+
+if ( ! function_exists('url_strip_query') ) {
+	function url_strip_query( $url ) {
+		if ( empty($url) ) {
+			return $url;
+		}
+		$search = array();
+		if ( $tmp = parse_url($url, PHP_URL_QUERY) ) {
+			$search[] = '?' . trim($tmp, ' ?');
+		}
+		if ( $tmp = parse_url($url, PHP_URL_FRAGMENT) ) {
+			$search[] = '#' . trim($tmp, ' #');
+		}
+		return str_replace($search, '', $url);
 	}
 }

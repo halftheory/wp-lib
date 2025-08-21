@@ -67,15 +67,15 @@ abstract class Theme extends Core {
 
 	final public function load_filters( $values, $data_key = '_filters' ) {
 		// Could be a single object, or an array of objects.
-		$callback = function ( $value ) {
-			if ( is_object($value) ) {
-				return $value;
+		$callback = function ( $v ) {
+			if ( is_object($v) ) {
+				return $v;
 			}
-			if ( ! class_exists($value) ) {
+			if ( ! class_exists($v) ) {
 				return false;
 			}
-			$value = is_subclass_of($value, 'Halftheory\Lib\Filters') ? new $value(true) : new $value();
-			return is_object($value) ? $value : false;
+			$v = is_subclass_of($v, 'Halftheory\Lib\Filters') ? new $v(true) : new $v();
+			return is_object($v) ? $v : false;
 		};
 		$this->data[ $data_key ] = is_array($values) ? array_filter(array_map($callback, $values)) : $callback($values);
 		return ! empty($this->data[ $data_key ]);
@@ -123,8 +123,8 @@ abstract class Theme extends Core {
 				'value' => null,
 			);
 		}
-		$callback = function ( $value ) {
-			return is_array($value) && array_key_exists('loaded', $value) ? $value['loaded'] : false;
+		$callback = function ( $v ) {
+			return is_array($v) && array_key_exists('loaded', $v) ? $v['loaded'] : false;
 		};
 		return array_filter($this->data[ $data_key ], $callback);
 	}

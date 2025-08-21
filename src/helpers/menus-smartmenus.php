@@ -155,7 +155,7 @@ class Menus_Smartmenus extends Filters {
 			<?php
             $logo = '';
             if ( has_custom_logo() ) {
-                if ( $tmp = get_image_context('img', get_theme_mod('custom_logo'), 'thumbnail') ) {
+                if ( $tmp = get_image_context('img', get_theme_mod('custom_logo'), 'thumbnail', array( 'alt' => get_bloginfo('name') )) ) {
                     $logo = $tmp . ' ';
                 }
             }

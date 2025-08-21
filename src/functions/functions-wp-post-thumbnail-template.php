@@ -6,7 +6,14 @@ if ( ! function_exists('get_post_thumbnail_context') ) {
 			return false;
 		}
 		$thumbnail_id = post_thumbnail_id_fallback(get_post_thumbnail_id($post), $post, $fallback_args);
-		return $thumbnail_id ? get_image_context($context, $thumbnail_id, $size, $attr) : false;
+		if ( ! $thumbnail_id ) {
+			return false;
+		}
+		$defaults = array(
+			'alt' => get_attachment_alt($post, __('Thumbnail')),
+		);
+		$attr = wp_parse_args($attr, $defaults);
+		return get_image_context($context, $thumbnail_id, $size, $attr);
 	}
 }
 
@@ -21,10 +28,7 @@ if ( ! function_exists('ht_the_post_thumbnail') ) {
 		}
 		// Add more attributes.
 		$defaults = array(
-			'alt' => the_title_attribute('echo=0'),
-		);
-		$div_class = array(
-			'post-thumbnail',
+			'alt' => get_attachment_alt($thumbnail_id, __('Thumbnail')),
 		);
 		if ( $tmp = get_image_info($thumbnail_id, $size) ) {
 			$defaults['width'] = $tmp['width'];
@@ -32,15 +36,17 @@ if ( ! function_exists('ht_the_post_thumbnail') ) {
 			$defaults['class'] = $tmp['orientation'];
 		}
 		$attr = wp_parse_args($attr, $defaults);
+		$div_class = array(
+			'post-thumbnail',
+		);
 		if ( isset($attr['class']) ) {
 			$div_class[] = trim($attr['class']);
 		}
-		$label = $attr['alt'] ? wp_sprintf('%s: "%s"', __('Image'), $attr['alt']) : __('Image');
 		if ( is_singular() ) {
 			// Singular.
 			$div_class[] = 'singular';
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($attr['alt']); ?>">
 				<a href="<?php echo esc_url(get_image_context('url', $thumbnail_id, 'large')); ?>" rel="lightbox"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
 				<?php
 				// Caption.
@@ -55,7 +61,7 @@ if ( ! function_exists('ht_the_post_thumbnail') ) {
 		} else {
 			// Archives.
 			?>
-			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($label); ?>">
+			<div class="<?php echo esc_attr(implode(' ', $div_class)); ?>" role="img" aria-label="<?php echo esc_attr($attr['alt']); ?>">
 				<a href="<?php the_permalink(); ?>"><?php echo wp_kses_post(get_image_context('img', $thumbnail_id, $size, $attr)); ?></a>
 			</div>
 			<?php

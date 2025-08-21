@@ -1,4 +1,39 @@
 <?php
+if ( ! function_exists('get_all_object_terms') ) {
+	function get_all_object_terms( $post = null ) {
+		$post = get_post($post);
+		if ( ! $post ) {
+			return false;
+		}
+		$object_taxonomies = get_object_taxonomies($post->post_type);
+		if ( empty($object_taxonomies) ) {
+			return false;
+		}
+		$results = array();
+		foreach ( $object_taxonomies as $taxonomy ) {
+			$tmp = get_the_terms($post, $taxonomy);
+			if ( is_array($tmp) ) {
+				$results = array_merge($results, $tmp);
+			}
+		}
+		return empty($results) ? false : $results;
+	}
+}
+
+if ( ! function_exists('get_object_term_links') ) {
+	function get_object_term_links( $post = null ) {
+		$results = array();
+		if ( $tmp = get_all_object_terms($post) ) {
+			$tmp = array_filter($tmp, 'is_term_publicly_viewable');
+			if ( ! empty($tmp) ) {
+				$tmp = array_map('get_term_link', $tmp);
+				$results = array_merge($results, $tmp);
+			}
+		}
+		return empty($results) ? false : $results;
+	}
+}
+
 if ( ! function_exists('get_taxonomies_slugs') ) {
 	function get_taxonomies_slugs() {
 		static $_results = null;

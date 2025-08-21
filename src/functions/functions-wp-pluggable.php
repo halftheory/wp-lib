@@ -5,10 +5,12 @@ if ( ! function_exists('ht_is_user_logged_in') ) {
 			return is_user_logged_in();
 		}
 		if ( isset($_COOKIE) && ! empty($_COOKIE) ) {
-			foreach ( $_COOKIE as $key => $value ) {
-				if ( str_contains($key, 'wordpress_logged_in_') ) {
-					return true;
-				}
+			$callback = function ( $v ) {
+				return str_contains($v, 'wordpress_logged_in_');
+			};
+			$tmp = array_filter( (array) $_COOKIE, $callback, ARRAY_FILTER_USE_KEY);
+			if ( count($tmp) > 0 ) {
+				return true;
 			}
 		}
 		return false;

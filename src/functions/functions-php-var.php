@@ -13,17 +13,14 @@ if ( ! function_exists('is_true') ) {
 		if ( is_bool($value) ) {
 			return $value;
 		} elseif ( is_numeric($value) ) {
-			if ( (int) $value === 1 ) {
-				return true;
-			} elseif ( (int) $value === 0 ) {
-				return false;
-			}
+			return (int) $value === 1;
 		} elseif ( is_string($value) ) {
 			if ( in_array($value, array( '1', 'true', 'TRUE', 'True' ), true) ) {
 				return true;
 			} elseif ( in_array($value, array( '0', 'false', 'FALSE', 'False' ), true) ) {
 				return false;
 			}
+			return filter_var($value, FILTER_VALIDATE_BOOL);
 		} elseif ( empty($value) ) {
 			return false;
 		}
@@ -45,7 +42,7 @@ if ( ! function_exists('ht_var_dump') ) {
 		} elseif ( is_null($value) ) {
 			echo 'null';
 		} else {
-			var_dump($value);
+			var_export($value);
 		}
 		echo "\n</pre>";
 		if ( is_true($exit) ) {

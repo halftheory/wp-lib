@@ -42,7 +42,7 @@ class No_Authors extends Filters {
 			return;
 		}
 		if ( is_author() ) {
-			// redirect author pages.
+			// Redirect author pages.
 			$url = null;
 			if ( $tmp = get_post_posts_page() ) {
 				$url = get_permalink($tmp);
@@ -61,7 +61,7 @@ class No_Authors extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $display_name;
 		}
-		// change to blogname.
+		// Change to blogname.
 		return get_bloginfo('name');
 	}
 
@@ -69,7 +69,7 @@ class No_Authors extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $link;
 		}
-		// change to home url.
+		// Change to home URL.
         return home_url();
     }
 
@@ -77,7 +77,7 @@ class No_Authors extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $link;
 		}
-		// change to home url.
+		// Change to home URL.
         if ( ! empty($link) ) {
             if ( is_object($authordata) && (int) $authordata->ID > 0 ) {
                 $link = str_replace(esc_url($author_url), esc_url(home_url()), $link);
@@ -90,7 +90,7 @@ class No_Authors extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $url;
 		}
-		// change to home url.
+		// Change to home URL.
         if ( ! empty($url) ) {
             if ( is_object($comment) && (int) $comment->user_id > 0 ) {
                 $url = home_url();

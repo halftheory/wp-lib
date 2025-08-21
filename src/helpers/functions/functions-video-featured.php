@@ -68,10 +68,7 @@ if ( ! function_exists('the_post_video') ) {
 		}
 		// Add more attributes.
 		$defaults = array(
-			'data-title' => the_title_attribute('echo=0'),
-		);
-		$div_class = array(
-			'post-video',
+			'data-title' => get_attachment_alt($attachment_id),
 		);
 		if ( $tmp = get_video_context('metadata', $attachment_id, $attr) ) {
 			if ( $tmp['width'] && $tmp['height'] ) {
@@ -81,6 +78,9 @@ if ( ! function_exists('the_post_video') ) {
 			}
 		}
 		$attr = wp_parse_args($attr, $defaults);
+		$div_class = array(
+			'post-video',
+		);
 		if ( isset($attr['class']) ) {
 			$div_class[] = trim($attr['class']);
 		}
