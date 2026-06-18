@@ -79,22 +79,22 @@ if ( ! function_exists('ht_remove_filter') ) {
 			// Clear the keys.
 			$callback = array_values($callback);
 			if ( is_string($callback[0]) && is_string($callback[1]) && method_exists($callback[0], $callback[1]) && isset($wp_filter[ $hook_name ]->callbacks[ $priority ]) ) {
-				foreach ( $wp_filter[ $hook_name ]->callbacks[ $priority ] as $function_key => $callback ) {
-					if ( ! is_array($callback) ) {
+				foreach ( $wp_filter[ $hook_name ]->callbacks[ $priority ] as $key => $cb ) {
+					if ( ! is_array($cb) ) {
 						continue;
 					}
-					if ( ! isset($callback['function']) ) {
+					if ( ! isset($cb['function']) ) {
 						continue;
 					}
-					if ( ! is_array($callback['function']) ) {
+					if ( ! is_array($cb['function']) ) {
 						continue;
 					}
-					if ( count($callback['function']) < 2 ) {
+					if ( ! isset($cb['function'][0], $cb['function'][1]) ) {
 						continue;
 					}
-					if ( is_object($callback['function'][0]) && is_string($callback['function'][1]) ) {
-						if ( is_a($callback['function'][0], $callback[0]) && $callback['function'][1] === $callback[1] ) {
-							unset($wp_filter[ $hook_name ]->callbacks[ $priority ][ $function_key ]);
+					if ( is_object($cb['function'][0]) && is_string($cb['function'][1]) ) {
+						if ( is_a($cb['function'][0], $callback[0]) && $cb['function'][1] === $callback[1] ) {
+							unset($wp_filter[ $hook_name ]->callbacks[ $priority ][ $key ]);
 							$result = true;
 						}
 					}

@@ -13,13 +13,13 @@ class Microdata extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true ) {
-		$this->load_functions('microdata');
 		parent::__construct($autoload);
 	}
 
 	protected function autoload() {
 		if ( is_public() ) {
 			// Public.
+			$this->load_functions('microdata');
 			add_filter('wp_nav_menu', array( $this, 'public_wp_nav_menu' ), 20, 2);
 			add_filter('wp_nav_menu_args', array( $this, 'public_wp_nav_menu_args' ), 20, 1);
 			add_filter('nav_menu_item_attributes', array( $this, 'public_nav_menu_item_attributes' ), 20, 4);

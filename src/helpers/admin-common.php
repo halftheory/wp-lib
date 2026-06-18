@@ -13,7 +13,6 @@ class Admin_Common extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true ) {
-		$this->load_functions('wp-admin');
 		parent::__construct($autoload);
 	}
 
@@ -25,6 +24,8 @@ class Admin_Common extends Filters {
 			// Admin.
 			add_action('admin_init', array( $this, 'admin_init' ), 90);
 			add_action('admin_menu', array( $this, 'admin_menu' ), ( 9553 + 10 ));
+			add_action('admin_notices', array( $this, 'admin_notices' ));
+			add_action('network_admin_notices', array( $this, 'admin_notices' ));
 			add_action('current_screen', array( $this, 'admin_current_screen' ));
 			add_filter('heartbeat_settings', array( $this, 'admin_heartbeat_settings' ));
 			add_filter('pre_update_option', array( $this, 'admin_pre_update_option' ), 20, 3);
@@ -39,6 +40,7 @@ class Admin_Common extends Filters {
 			}
 			add_filter('bulk_actions-upload', array( $this, 'admin_bulk_actions' ), 20);
 			add_filter('handle_bulk_actions-upload', array( $this, 'admin_handle_bulk_actions' ), 20, 3);
+			add_action('admin_footer', array( $this, 'admin_footer' ), 20);
 		}
 		parent::autoload();
 	}
@@ -46,10 +48,13 @@ class Admin_Common extends Filters {
 	// Global.
 
 	public function global_gettext_default( $translation, $text, $domain ) {
-		// Replace Howdy with Welcome.
-		if ( ! is_user_logged_in() ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $translation;
 		}
+		if ( function_exists('is_user_logged_in') && ! is_user_logged_in() ) {
+			return $translation;
+		}
+		// Replace Howdy with Welcome.
 		if ( $text === 'Howdy, %s' ) {
 			$translation = str_replace('Howdy', 'Welcome', $translation);
 		}
@@ -75,6 +80,7 @@ class Admin_Common extends Filters {
 			'view',
 			'top-secondary',
 		);
+		$this->load_functions('wp-capabilities');
 		if ( is_administrator() ) {
 			$keep[] = 'redis-cache';
 		}
@@ -108,12 +114,15 @@ class Admin_Common extends Filters {
 		add_filter('update_footer', '__return_empty_string', 100);
 		// Admin Color Scheme.
 		remove_all_actions('admin_color_scheme_picker');
+
+		$this->admin_notices_set_transient();
 	}
 
 	public function admin_menu( $context = '' ) {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $context;
 		}
+		$this->load_functions('wp-capabilities');
 		if ( ! is_administrator() ) {
 			$array = array(
 				'plugins.php',
@@ -121,6 +130,7 @@ class Admin_Common extends Filters {
 				'tools.php',
 				'options-general.php',
 			);
+			$this->load_functions('wp-admin');
 			foreach ( $array as $value ) {
 				ht_remove_menu_page($value);
 			}
@@ -131,10 +141,40 @@ class Admin_Common extends Filters {
 		}
 	}
 
+	public function admin_notices() {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return;
+		}
+		if ( empty(get_current_screen_id()) ) {
+			return;
+		}
+		if ( $array = get_transient(static::$handle . '_admin_notices') ) {
+			foreach ( $array as $value ) {
+				$display = true;
+				if ( isset($value['conditions']) ) {
+					foreach ( $value['conditions'] as $callback ) {
+						if ( ! function_exists($callback) ) {
+							continue;
+						}
+						if ( ! call_user_func($callback) ) {
+							$display = false;
+							break;
+						}
+					}
+				}
+				if ( $display ) {
+					echo wp_kses_post(wp_sprintf('<div class="' . esc_attr(implode(' ', $value['classes'])) . '"><p>%s</p></div>', wpautop($value['message']))) . "\n";
+				}
+			}
+			delete_transient(static::$handle . '_admin_notices');
+		}
+	}
+
 	public function admin_current_screen( $current_screen ) {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return;
 		}
+		$this->load_functions('wp-admin');
 		get_current_screen_id();
 	}
 
@@ -170,6 +210,7 @@ class Admin_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $value;
 		}
+		$this->load_functions('wp-capabilities');
 		return is_administrator();
 	}
 
@@ -191,10 +232,14 @@ class Admin_Common extends Filters {
 	}
 
 	public function admin_wp_update_nav_menu( $menu_id, $menu_data = null ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return;
+		}
 		if ( $menu_data !== null ) {
 			// This means the action was fired in nav-menu.php, BEFORE the menu items have been updated, and we should ignore it.
 			return;
 		}
+		$this->load_functions('wp-admin');
 		if ( ! in_array(get_current_screen_id(), array( 'nav-menus' )) ) {
 			return;
 		}
@@ -247,6 +292,7 @@ class Admin_Common extends Filters {
 		};
 
 		// Front page.
+		$this->load_functions('wp-post');
 		if ( $tmp = get_post_front_page() ) {
 			$page_structure[] = array( 'ID' => $tmp->ID, 'title' => $tmp->post_title, 'children' => array() );
 			$page_structure_ids[] = $tmp->ID;
@@ -375,6 +421,7 @@ class Admin_Common extends Filters {
 		if ( empty($taxonomies) ) {
 			return $actions;
 		}
+		$this->load_functions('wp-general-template');
 		sort($taxonomies);
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = get_terms(
@@ -402,6 +449,7 @@ class Admin_Common extends Filters {
 		}
 		if ( str_starts_with($doaction, 'add-term-') ) {
 			$term = str_replace_start('add-term-', '', $doaction);
+			$this->load_functions('wp-taxonomy');
 			if ( $term = ht_get_term( (int) $term) ) {
 				foreach ( $post_ids as $post_id ) {
 					wp_add_object_terms($post_id, $term->term_id, $term->taxonomy);
@@ -418,5 +466,21 @@ class Admin_Common extends Filters {
 			}
 		}
 		return $location;
+	}
+
+	public function admin_footer( $data ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return;
+		}
+		$this->admin_notices_set_transient();
+	}
+
+	// Functions.
+
+	private function admin_notices_set_transient() {
+		if ( $data = ht_admin_notices('get') ) {
+			set_transient(static::$handle . '_admin_notices', $data, HOUR_IN_SECONDS);
+			ht_admin_notices('clear');
+		}
 	}
 }

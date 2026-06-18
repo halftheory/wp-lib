@@ -1,4 +1,14 @@
 <?php
+$array = array(
+	'functions-wp-general-template.php',
+	'functions-wp-post.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('content_is_ready_to_display') ) {
 	function content_is_ready_to_display( $content = '', $filter = 'the_content' ) {
 		if ( empty($content) ) {
@@ -10,7 +20,7 @@ if ( ! function_exists('content_is_ready_to_display') ) {
 		if ( wp_doing_ajax() ) {
 			return in_the_loop();
 		}
-		if ( did_action('get_header') === 0 || did_filter('body_class') === 0 || did_action('get_footer') > 0 || is_404() || is_signup_page() || is_login_page() ) {
+		if ( did_action('get_header') === 0 || did_filter('body_class') === 0 || is_404() || is_signup_page() || is_login_page() ) {
 			return false;
 		}
 		switch ( $filter ) {

@@ -1,6 +1,6 @@
 <?php
 if ( ! function_exists('get_current_locale') ) {
-	function get_current_locale( $default = 'en_US', $field = 'locale' ) {
+	function get_current_locale( $field = 'locale', $default = 'en_US' ) {
 		if ( function_exists('pll_current_language') && pll_current_language() ) {
 			// Polylang.
 			$result = pll_current_language($field);

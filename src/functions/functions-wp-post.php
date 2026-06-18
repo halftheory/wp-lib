@@ -1,4 +1,13 @@
 <?php
+$array = array(
+	'functions-wp-query.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_attachment_path') ) {
 	function get_attachment_path( $attachment_id, $size = null ) {
 		if ( ht_get_post_type($attachment_id) !== 'attachment' ) {

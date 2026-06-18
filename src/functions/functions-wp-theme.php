@@ -1,4 +1,13 @@
 <?php
+$array = array(
+	'functions-wp-load.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_file_version') ) {
 	function get_file_version( $file, $default = null ) {
 		if ( ! file_exists($file) || ! is_file($file) ) {
@@ -83,6 +92,45 @@ if ( ! function_exists('get_stylesheet_uri_from_file') ) {
 	}
 }
 
+if ( ! function_exists('get_theme_colors') ) {
+	function get_theme_colors( $keys = array() ) {
+ 		$data = ht_get_theme_data();
+		if ( empty($data) ) {
+			return array();
+		}
+		$array = array();
+		foreach ( $data as $key => $value ) {
+			if ( empty($value) ) {
+				continue;
+			}
+			if ( str_contains($key, 'color') || str_contains($key, 'Color') ) {
+				$array[ $key ] = $value;
+			}
+		}
+		if ( empty($keys) ) {
+			return $array;
+		}
+		$result = array_fill_keys(array_values($keys), null);
+		foreach ( $result as $key => &$value ) {
+			if ( isset($data[ $key ]) ) {
+				$value = $data[ $key ];
+				if ( array_key_exists($key, $array) ) {
+					unset($array[ $key ]);
+				}
+			}
+		}
+		foreach ( $result as $key => &$value ) {
+			if ( $value ) {
+				continue;
+			}
+			if ( ! empty($array) ) {
+				$value = array_shift($array);
+			}
+		}
+		return array_filter($result);
+	}
+}
+
 if ( ! function_exists('get_uri_from_npm') ) {
 	function get_uri_from_npm( $args, $fallback = null ) {
 		$defaults = array(
@@ -91,7 +139,25 @@ if ( ! function_exists('get_uri_from_npm') ) {
 			'file' => null,
 		);
 		$args = wp_parse_args($args, $defaults);
+
+		$function_fallback = function () use ( $fallback ) {
+			if ( $fallback ) {
+				foreach ( make_array($fallback) as $value ) {
+					if ( str_starts_with($value, 'http') || str_starts_with($value, '//') ) {
+						return $value;
+					}
+					if ( $tmp = get_stylesheet_uri_from_file($value) ) {
+						return $tmp;
+					}
+				}
+			}
+			return false;
+		};
+
+		$result = false;
+
 		if ( isset($args['package']) && isset($args['file']) ) {
+			// Development.
 			if ( is_development() ) {
 				$array = array(
 					get_stylesheet_directory(),
@@ -100,30 +166,26 @@ if ( ! function_exists('get_uri_from_npm') ) {
 					$args['file'],
 				);
 				if ( $tmp = get_stylesheet_uri_from_file(implode(DIRECTORY_SEPARATOR, $array)) ) {
-					return $tmp;
+					// node_modules folder.
+					$result = $tmp;
+				} elseif ( $tmp = $function_fallback() ) {
+					// Fallback, possibly vendor folder.
+					$result = $tmp;
 				}
 			}
-			$array = array(
-				'//cdn.jsdelivr.net/npm',
-				isset($args['version']) ? $args['package'] . '@' . $args['version'] : $args['package'],
-				$args['file'],
-			);
-			$url = apply_filters('get_uri_from_npm', implode('/', $array), $args);
-			if ( $url ) {
-				return $url;
+			// Production.
+			if ( ! $result ) {
+				$array = array(
+					'//cdn.jsdelivr.net/npm',
+					isset($args['version']) ? $args['package'] . '@' . $args['version'] : $args['package'],
+					$args['file'],
+				);
+				$result = implode('/', $array);
 			}
+		} else {
+			$result = $function_fallback();
 		}
-		if ( $fallback ) {
-			foreach ( make_array($fallback) as $value ) {
-				if ( str_starts_with($value, 'http') || str_starts_with($value, '//') ) {
-					return $value;
-				}
-				if ( $tmp = get_stylesheet_uri_from_file($value) ) {
-					return $tmp;
-				}
-			}
-		}
-		return false;
+		return apply_filters('get_uri_from_npm', $result, $args);
 	}
 }
 

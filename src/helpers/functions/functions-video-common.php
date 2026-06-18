@@ -1,6 +1,12 @@
 <?php
-if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-post.php') ) {
-	include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-post.php';
+$array = array(
+	'functions-wp-post.php',
+	'functions-wp-post-template.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value) ) {
+		include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value;
+	}
 }
 
 if ( ! function_exists('get_video_context') ) {
@@ -55,6 +61,21 @@ if ( ! function_exists('get_video_context') ) {
 						'width' => '100%',
 					);
 					$attr = wp_parse_args($attr, $defaults);
+					if ( $attr['controls'] ) {
+						$attr['controls'] = 'controls';
+					}
+					$type = get_post_mime_type($attachment_id);
+					// Browser considerations.
+					if ( isset($_SERVER['HTTP_USER_AGENT']) && ! empty($_SERVER['HTTP_USER_AGENT']) ) {
+						if ( str_contains($_SERVER['HTTP_USER_AGENT'], 'Chrome') && $type === 'video/quicktime' ) {
+							// Trick Chrome into playing .mov files.
+  							$type = 'video/mp4';
+  						} elseif ( str_contains($_SERVER['HTTP_USER_AGENT'], 'Safari') && ! $attr['controls'] ) {
+  							// This makes controls visible in Safari, even when false.
+  							unset($attr['controls']);
+  						}
+					}
+					// Format attributes.
 					$attr_strings = array();
 					foreach ( $attr as $key => $value ) {
 						if ( is_bool($value) ) {
@@ -67,13 +88,6 @@ if ( ! function_exists('get_video_context') ) {
 						}
 					}
 					$result = wp_sprintf('<video %s>', implode(' ', $attr_strings));
-					$type = get_post_mime_type($attachment_id);
-					// Trick Chrome into playing .mov files.
-					if ( $type === 'video/quicktime' && isset($_SERVER['HTTP_USER_AGENT']) && ! empty($_SERVER['HTTP_USER_AGENT']) ) {
-						if ( str_contains($_SERVER['HTTP_USER_AGENT'], 'Chrome') ) {
-  							$type = 'video/mp4';
-  						}
-					}
 					$result .= wp_sprintf('<source type="%s" src="%s" />', esc_attr($type), esc_url($tmp));
 					$result .= '</video>';
 				}

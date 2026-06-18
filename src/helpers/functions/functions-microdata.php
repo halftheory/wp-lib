@@ -1,6 +1,14 @@
 <?php
-if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp.php') ) {
-	include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp.php';
+$array = array(
+	'functions-wp-formatting.php',
+	'functions-wp-general-template.php',
+	'functions-wp-post-thumbnail-template.php',
+	'functions-wp-shortcodes.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value) ) {
+		include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value;
+	}
 }
 
 if ( ! function_exists('get_microdata_meta') ) {
@@ -40,18 +48,7 @@ if ( ! function_exists('get_microdata_meta') ) {
 				}
 				$result .= '<span itemprop="publisher" itemscope itemtype="' . esc_url(set_url_scheme('https://schema.org/Organization')) . '" class="none">' . "\n";
 				$result .= '<meta itemprop="name" content="' . esc_attr(get_bloginfo('name')) . '">' . "\n";
-				$args = array(
-					'search' => array(
-						'logo' => true,
-						'attached_media' => true,
-						'gallery' => true,
-						'content' => false,
-						'parent' => false,
-					),
-					'min_width' => get_option('thumbnail_size_w', 0),
-					'min_height' => get_option('thumbnail_size_h', 0),
-				);
-				if ( $logo_url = get_post_thumbnail_context('url', $post, 'medium', array(), $args) ) {
+				if ( $logo_url = get_image_context('url', get_custom_logo_id(), 'medium') ) {
 					$result .= '<meta itemprop="logo" content="' . esc_url($logo_url) . '">' . "\n";
 				}
 				$result .= '</span>' . "\n";

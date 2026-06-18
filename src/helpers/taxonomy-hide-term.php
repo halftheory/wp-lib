@@ -13,7 +13,6 @@ class Taxonomy_Hide_Term extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true ) {
-		$this->load_functions('wp-taxonomy');
 		parent::__construct($autoload);
 	}
 
@@ -208,6 +207,7 @@ class Taxonomy_Hide_Term extends Filters {
 		if ( ! in_array($taxonomy, $this->data['taxonomies']) ) {
 			return;
 		}
+		$this->load_functions('wp-taxonomy');
 		$term = ht_get_term($tag, $taxonomy);
 		if ( ! $term ) {
 			return;

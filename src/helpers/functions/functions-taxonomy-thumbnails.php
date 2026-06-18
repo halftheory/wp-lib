@@ -1,6 +1,12 @@
 <?php
-if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-taxonomy.php') ) {
-	include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions-wp-taxonomy.php';
+$array = array(
+	'functions-wp-media.php',
+	'functions-wp-taxonomy.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value) ) {
+		include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value;
+	}
 }
 
 if ( ! function_exists('delete_term_thumbnail') ) {

@@ -21,8 +21,7 @@
       $('a.sm-toggler-anchor--show').on('click', function (e) {
         if ($(this)[0] === masterShow[0]) {
           return;
-        }
-        if ($(this).closest(selector).length) {
+        } else if ($(this).closest(selector).length) {
           return;
         }
         e.preventDefault();
@@ -34,13 +33,37 @@
       $('a.sm-toggler-anchor--hide').on('click', function (e) {
         if ($(this)[0] === masterHide[0]) {
           return;
-        }
-        if ($(this).closest(selector).length) {
+        } else if ($(this).closest(selector).length) {
           return;
         }
         e.preventDefault();
         masterHide[0].click();
       });
+      const offcanvas = $(selector + ' .sm-offcanvas').first();
+      if (offcanvas.length) {
+        // Escape close.
+        $(document).on('keyup', function (e) {
+          if (e.key === 'Escape') {
+            if (offcanvas.hasClass('sm-show')) {
+              masterHide[0].click();
+            }
+          }
+        });
+        // Clicking anchor links closes menu.
+        offcanvas.find('a.sm-nav-link').each(function (i) {
+          const href = $(this).attr('href');
+          if (href.substr(0, 1) === '#') {
+            if ($(href).length) {
+              if ($.fn.smoothScroll && typeof $.fn.smoothScroll === 'function') {
+                $(this).smoothScroll({ speed: 300 });
+              }
+              $(this).on('click', function (e) {
+                masterHide[0].click();
+              });
+            }
+          }
+        });
+      }
     }
   };
   $(document).ready(function () {

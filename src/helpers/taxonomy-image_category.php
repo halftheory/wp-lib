@@ -104,6 +104,7 @@ class Taxonomy_Image_Category extends Add_Taxonomy {
 			// Check it's not a term.
 			if ( ! get_term_by('slug', $post_slug, $this->data['taxonomy']) ) {
 				// Get post.
+				$this->load_functions('wp-post');
 				$post_obj = ht_get_page_by_path($post_slug, OBJECT, 'attachment');
 				if ( $post_obj && is_post_publicly_viewable($post_obj) ) {
 					// Get term.
@@ -152,6 +153,7 @@ class Taxonomy_Image_Category extends Add_Taxonomy {
 							}
 							// Hash.
 							$url .= '#' . $post_slug;
+							$this->load_functions('wp-pluggable');
 							if ( ht_wp_redirect($url) ) {
 								exit;
 							}
@@ -184,6 +186,7 @@ class Taxonomy_Image_Category extends Add_Taxonomy {
 			$args['tax_query']['relation'] = 'AND';
 		}
 		self::remove_filter('public_pre_get_posts');
+		$this->load_functions('wp-post');
 		if ( $tmp = ht_get_posts($args) ) {
 			$this->data['query_vars_defaults']['post__not_in'] = $tmp;
 		}
@@ -240,6 +243,7 @@ class Taxonomy_Image_Category extends Add_Taxonomy {
 		}
 		$queried_object = get_queried_object();
 		if ( ( is_a($queried_object, 'WP_Term') && $queried_object->taxonomy === $this->data['taxonomy'] ) || ! empty(get_query_var($this->data['taxonomy'])) ) {
+			$this->load_functions('wp-theme');
 			// JS.
 			$file = __DIR__ . '/assets/js/taxonomy-image_category' . min_scripts() . '.js';
 			if ( $url = get_stylesheet_uri_from_file($file) ) {

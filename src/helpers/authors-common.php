@@ -30,7 +30,7 @@ class Authors_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $display_name;
 		}
-		// change to blogname in some cases.
+		// Change to blogname in some cases.
 		$change = false;
 		global $authordata;
 		if ( empty($display_name) ) {

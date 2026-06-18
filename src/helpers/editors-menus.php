@@ -58,11 +58,15 @@ class Editors_Menus extends Filters {
 				if ( $current_user->has_cap('edit_theme_options') ) {
 					global $submenu;
 					if ( is_array($submenu) && isset($submenu['themes.php']) ) {
-						foreach ( wp_list_pluck($submenu['themes.php'], 2) as $value ) {
-							if ( str_starts_with($value, 'nav-menus.php') ) {
+						foreach ( $submenu['themes.php'] as $value ) {
+							if ( ! isset($value[1], $value[2]) ) {
 								continue;
 							}
-							remove_submenu_page('themes.php', $value);
+							if ( str_starts_with($value[2], 'nav-menus.php') ) {
+								continue;
+							} elseif ( $value[1] === 'edit_theme_options' ) {
+								remove_submenu_page('themes.php', $value[2]);
+							}
 						}
 					}
 				}

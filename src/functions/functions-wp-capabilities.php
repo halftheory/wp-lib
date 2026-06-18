@@ -1,10 +1,19 @@
 <?php
+$array = array(
+	'functions-wp-pluggable.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('is_administrator') ) {
 	function is_administrator() {
 		static $_result = null;
 		if ( is_null($_result) ) {
 			$_result = false;
-			if ( is_user_logged_in() ) {
+			if ( ht_is_user_logged_in() ) {
 				if ( is_super_admin() ) {
 					$_result = true;
 				} elseif ( current_user_can('manage_options') ) {

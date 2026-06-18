@@ -1,4 +1,14 @@
 <?php
+$array = array(
+	'functions-wp-html-api.php',
+	'functions-wp-media.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_oembed_providers_hosts') ) {
 	function get_oembed_providers_hosts() {
 		static $_results = null;

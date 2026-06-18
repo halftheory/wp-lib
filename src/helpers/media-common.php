@@ -80,7 +80,7 @@ class Media_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $default_sizes;
 		}
-		// remove medium_large.
+		// Remove medium_large.
 		if ( in_array('medium', $default_sizes, true) && in_array('large', $default_sizes, true) && in_array('medium_large', $default_sizes, true) ) {
 			$default_sizes = array_value_unset($default_sizes, 'medium_large');
 			$default_sizes = array_values($default_sizes);
@@ -92,7 +92,7 @@ class Media_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $out;
 		}
-		// intercept requests for medium_large.
+		// Intercept requests for medium_large.
 		if ( $size === 'medium_large' ) {
 			$sizes = get_intermediate_image_sizes();
 			if ( ! in_array('medium_large', $sizes, true) ) {
@@ -123,7 +123,7 @@ class Media_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $url;
 		}
-		// Fixes bug in 'wp_get_attachment_url' which skips ssl urls when using ajax.
+		// Fixes bug in 'wp_get_attachment_url' which skips SSL URLs when using AJAX.
 		if ( is_ssl() && 'wp-login.php' !== $GLOBALS['pagenow'] ) {
 			$url = set_url_scheme($url);
 		}
@@ -135,6 +135,7 @@ class Media_Common extends Filters {
 			return $attr;
 		}
 		if ( ! isset($attr['alt']) || empty($attr['alt']) ) {
+			$this->load_functions('wp-post-template');
 			$attr['alt'] = get_attachment_alt($attachment);
 		}
 		return $attr;
@@ -271,6 +272,7 @@ class Media_Common extends Filters {
 			return $actions;
 		}
 		$actions['attach-images'] = __('Attach to Post');
+		$actions['correct-paths'] = __('Correct Paths');
 		$actions['regenerate-images'] = __('Regenerate Images');
 		return $actions;
 	}
@@ -283,6 +285,12 @@ class Media_Common extends Filters {
 			case 'attach-images':
 				foreach ( $post_ids as $post_id ) {
 					$this->attach_image($post_id);
+				}
+				$location = add_query_arg('posted', 1, $location);
+				break;
+			case 'correct-paths':
+				foreach ( $post_ids as $post_id ) {
+					$this->correct_path($post_id);
 				}
 				$location = add_query_arg('posted', 1, $location);
 				break;
@@ -318,6 +326,7 @@ class Media_Common extends Filters {
 			'orderby' => 'modified',
 			'fields' => 'ids',
 		);
+		$this->load_functions('wp-post');
 		if ( $post_ids = ht_get_posts($args) ) {
 			foreach ( $post_ids as $post_id ) {
 				$this->attach_image($post_id);
@@ -334,6 +343,7 @@ class Media_Common extends Filters {
 		if ( (int) get_post_field('post_parent', $attachment_id, 'raw') > 0 ) {
 			return false;
 		}
+		$this->load_functions('wp-post');
 		static $_published_posts = null;
 		if ( is_null($_published_posts) ) {
 			$args = array(
@@ -398,6 +408,7 @@ class Media_Common extends Filters {
 			'source' => null,
 			'destination' => null,
 		);
+		$this->load_functions('wp-post');
 		if ( ht_get_post_type($attachment_id) === 'attachment' ) {
 			if ( $path = get_attachment_path($attachment_id) ) {
 				$_results[ $attachment_id ]['source'] = $path;
@@ -428,6 +439,7 @@ class Media_Common extends Filters {
 			'orderby' => 'modified',
 			'fields' => 'ids',
 		);
+		$this->load_functions('wp-post');
 		if ( $post_ids = ht_get_posts($args) ) {
 			foreach ( $post_ids as $post_id ) {
 				$this->correct_path($post_id);
@@ -442,6 +454,7 @@ class Media_Common extends Filters {
 			return false;
 		}
 		$paths = $this->attachment_get_paths($attachment_id);
+		$this->load_functions('wp-admin');
 		return attachment_move($attachment_id, $paths['destination']);
 	}
 
@@ -454,6 +467,7 @@ class Media_Common extends Filters {
 			'orderby' => 'modified',
 			'fields' => 'ids',
 		);
+		$this->load_functions('wp-post');
 		if ( $post_ids = ht_get_posts($query_args) ) {
 			$args = array(
 				'delete_old_sizes' => false,

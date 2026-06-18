@@ -34,6 +34,7 @@ class Mail_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return;
 		}
+		$this->load_functions('wp-load');
 		if ( is_development() && method_exists($phpmailer, 'ClearAllRecipients') ) {
 			$phpmailer->ClearAllRecipients();
 			return;
@@ -49,15 +50,10 @@ class Mail_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $from_email;
 		}
-		$fallback = false;
-		if ( empty($from_email) ) {
-			$fallback = true;
-		} elseif ( isset($_SERVER['HTTP_HOST']) && strpos($from_email, $_SERVER['HTTP_HOST']) === false ) {
-			$fallback = true;
-		}
-		if ( $fallback ) {
+		$from_email = (string) $from_email;
+		if ( empty($from_email) || str_starts_with($from_email, 'wordpress@') || ( isset($_SERVER['HTTP_HOST']) && ! str_contains($from_email, $_SERVER['HTTP_HOST']) ) ) {
 			$tmp = get_option('admin_email');
-			if ( ! empty($tmp) ) {
+			if ( filter_var($tmp, FILTER_VALIDATE_EMAIL) ) {
 				$from_email = $tmp;
 			}
 		}
@@ -68,7 +64,7 @@ class Mail_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $from_name;
 		}
-		if ( empty($from_name) || strpos($from_name, 'WordPress') !== false ) {
+		if ( empty($from_name) || str_contains($from_name, 'WordPress') ) {
 			$tmp = get_option('blogname');
 			if ( ! empty($tmp) ) {
 				$from_name = $tmp;
@@ -95,9 +91,11 @@ class Mail_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $text;
 		}
+		$this->load_functions('wp-query');
 		if ( ! content_is_ready_to_display($text, current_filter()) ) {
 			return $text;
 		}
+		$this->load_functions('wp-formatting');
 		return ht_antispambot($text);
 	}
 
@@ -105,9 +103,11 @@ class Mail_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return $item_output;
 		}
+		$this->load_functions('wp-query');
 		if ( ! content_is_ready_to_display($item_output, current_filter()) ) {
 			return $item_output;
 		}
+		$this->load_functions('wp-formatting');
 		return ht_antispambot($item_output);
 	}
 }

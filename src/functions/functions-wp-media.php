@@ -1,4 +1,14 @@
 <?php
+$array = array(
+	'functions-wp-post-template.php',
+	'functions-wp-post.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_image_info') ) {
 	function get_image_info( $attachment_id, $size = null ) {
 		if ( ht_get_post_type($attachment_id) !== 'attachment' ) {
@@ -47,6 +57,9 @@ if ( ! function_exists('get_image_info') ) {
 
 if ( ! function_exists('get_image_context') ) {
 	function get_image_context( $context, $attachment_id, $size = 'medium', $attr = array() ) {
+		if ( ! $attachment_id ) {
+			return false;
+		}
 		if ( ht_get_post_type($attachment_id) !== 'attachment' ) {
 			return false;
 		}

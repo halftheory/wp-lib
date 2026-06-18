@@ -1,0 +1,45 @@
+@use '../libs/sass' as *;
+@use '../libs/libs' as l;
+
+// Variables.
+
+$wrapper: '.packery-wrapper' !default;
+$item-class: '.packery-item' !default;
+$gutter-class: '.gutter-sizer' !default;
+
+// Output.
+
+@mixin packery-reset (
+    $wrapper: $wrapper,
+    $item-class: $item-class,
+    $gutter-class: $gutter-class
+) {
+    @if $wrapper and $wrapper != '' {
+        #{$wrapper} {
+            height: auto !important;
+            #{$item-class} {
+                width: 100%;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+            }
+            #{$gutter-class} {
+                display: none;
+            }
+            @content;
+        }
+    }
+    @else {
+        height: auto !important;
+        #{$item-class} {
+            width: 100%;
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        #{$gutter-class} {
+            display: none;
+        }
+        @content;
+    }
+}

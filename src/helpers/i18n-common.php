@@ -40,6 +40,7 @@ class I18n_Common extends Filters {
 		if ( ! $path ) {
 			 return;
 		}
+		$this->load_functions('wp-theme');
 		$domain = ht_get_theme_data('TextDomain');
 		$locale = function_exists('determine_locale') ? determine_locale() : get_user_locale();
 		$locale = (string) apply_filters('theme_locale', $locale, $domain);
@@ -96,6 +97,7 @@ class I18n_Common extends Filters {
 		static $_result = null;
 		if ( is_null($_result) ) {
 			$_result = false;
+			$this->load_functions('wp-theme');
 			if ( $path = ht_get_theme_data('DomainPath') ) {
 				if ( is_dir($path) ) {
 					 $_result = untrailingslashit($path);
@@ -114,6 +116,7 @@ class I18n_Common extends Filters {
 		if ( ! $path ) {
 			return;
 		}
+		$this->load_functions('wp-theme');
 		$domain = ht_get_theme_data('TextDomain');
 		$potfile = wp_sprintf(
 			'%s' . DIRECTORY_SEPARATOR . '%s.pot',
@@ -123,6 +126,7 @@ class I18n_Common extends Filters {
 		if ( ! file_exists($potfile) ) {
 			return;
 		}
+		$this->load_functions('wp-admin');
 		$wp_filesystem = ht_wp_filesystem('direct');
 		if ( ! $wp_filesystem ) {
 			return;
@@ -142,6 +146,7 @@ class I18n_Common extends Filters {
 	}
 
 	public function set_script_translations( $handle = '' ) {
+		$this->load_functions('wp-theme');
 		$handle = empty($handle) ? ht_get_theme_data('handle') : $handle;
 		static $_results = array();
 		if ( array_key_exists($handle, $_results) ) {

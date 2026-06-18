@@ -36,6 +36,7 @@ class Menus_Slicknav extends Filters {
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}
+		$this->load_functions('wp-theme');
 		$array = array(
 			'package' => 'slicknav',
 			'version' => '1.0.8',
@@ -48,7 +49,8 @@ class Menus_Slicknav extends Filters {
 		}
 		$file = __DIR__ . '/assets/css/menus-slicknav.css';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_style(static::$handle, $url, array( $array['package'] ), get_file_version($file), 'all');
+			$this->load_functions('wp-styles');
+			wp_enqueue_style(static::$handle, $url, filter_style_deps(array( $array['package'] )), get_file_version($file), 'all');
 		}
 		// JS.
 		$fallback = __DIR__ . '/assets/dist/slicknav/dist/jquery.slicknav' . min_scripts() . '.js';
@@ -57,10 +59,12 @@ class Menus_Slicknav extends Filters {
 		}
 		$file = __DIR__ . '/assets/js/menus-slicknav' . min_scripts() . '.js';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
+			$this->load_functions('wp-scripts');
+			wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'jquery', $array['package'] )), get_file_version($file), true);
 			// Format data.
 			$logo = '';
 			if ( has_custom_logo() ) {
+				$this->load_functions('wp-media');
 				if ( $tmp = get_image_context('img', get_theme_mod('custom_logo'), 'thumbnail', array( 'alt' => get_bloginfo('name') )) ) {
 					$logo = $tmp . ' ';
 				}
@@ -83,6 +87,7 @@ class Menus_Slicknav extends Filters {
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}
+		$this->load_functions('wp-load');
 		$defaults = array(
 			'theme_location' => $this->data['menu'],
 			'menu_class' => '',

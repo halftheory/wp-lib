@@ -27,9 +27,15 @@ class Gallery_Ratio extends Filters {
 				'9-16' => '9:16',
 				'9-21' => '9:21',
 			),
+			'fit' => array(
+				'auto' => 'Auto',
+				'contain' => 'Contain',
+				'cover' => 'Cover',
+			),
 		);
 		$this->data['gallery_defaults'] = array(
 			'ratio' => '',
+			'fit' => '',
 			'gap' => 1,
 		);
 		$this->data['gallery_items'] = 0;
@@ -104,14 +110,16 @@ class Gallery_Ratio extends Filters {
 		if ( empty($this->data['gallery_items']) ) {
 			return;
 		}
-		if ( ! wp_style_is('gallery_common') ) {
+		if ( did_filter('post_gallery') === 0 && did_filter('gallery_style') === 0 ) {
 			return;
 		}
 		// Load CSS.
 		if ( ! wp_style_is(static::$handle) ) {
 			$file = __DIR__ . '/assets/css/gallery-ratio.css';
+			$this->load_functions('wp-theme');
 			if ( $url = get_stylesheet_uri_from_file($file) ) {
-				wp_enqueue_style(static::$handle, $url, array( 'gallery_common' ), get_file_version($file), 'screen');
+				$this->load_functions('wp-styles');
+				wp_enqueue_style(static::$handle, $url, filter_style_deps(array( 'gallery_common' )), get_file_version($file), 'screen');
 			}
 		}
 	}
@@ -140,6 +148,15 @@ class Gallery_Ratio extends Filters {
 		<select id="<?php echo esc_attr(static::$handle); ?>-ratio" name="ratio" data-setting="ratio" style="float: right; width: 65%;">
 			<option value="">--</option>
 		<?php foreach ( $this->data['gallery_options']['ratio'] as $key => $value ) : ?>
+			<option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($value); ?></option>
+		<?php endforeach; ?>
+		</select>
+	</span>
+	<span class="setting">
+		<label for="<?php echo esc_attr(static::$handle); ?>-fit" class="checkbox-label-inline"><?php esc_html_e('Image fit'); ?></label>
+		<select id="<?php echo esc_attr(static::$handle); ?>-fit" name="fit" data-setting="fit" style="float: right; width: 65%;">
+			<option value="">--</option>
+		<?php foreach ( $this->data['gallery_options']['fit'] as $key => $value ) : ?>
 			<option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($value); ?></option>
 		<?php endforeach; ?>
 		</select>

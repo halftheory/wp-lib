@@ -74,6 +74,7 @@ class Add_Taxonomy extends Filters {
 		if ( ! $this->data['object_type'] ) {
 			return;
 		}
+		$this->load_functions('wp-taxonomy');
 		$tmp = ht_register_taxonomy($this->data['taxonomy'], $this->data['object_type'], $this->data['taxonomy_args']);
 		if ( isset($tmp[ $this->data['taxonomy'] ]) ) {
 			foreach ( $this->data['object_type'] as $object_type ) {

@@ -123,6 +123,7 @@ class Gallery_Carousel extends Filters {
 			return $output;
 		}
 		// Add classes.
+		$this->load_functions('wp-html-api');
 		foreach ( array( 'carousel', 'extend_width', 'ratio', 'gap' ) as $value ) {
 			if ( ! isset($attr[ $value ]) ) {
 				continue;
@@ -153,34 +154,36 @@ class Gallery_Carousel extends Filters {
 		if ( empty($this->data['gallery_items']) ) {
 			return;
 		}
-		if ( ! wp_style_is('gallery_common') ) {
+		if ( did_filter('post_gallery') === 0 && did_filter('gallery_style') === 0 ) {
 			return;
 		}
+		$this->load_functions('wp-theme,wp-styles');
 		$array = array(
 			'package' => 'slick-carousel',
 			'version' => '1.8.1',
 		);
-		// css.
+		// CSS.
 		$fallback = __DIR__ . '/assets/dist/slick-carousel/slick/slick.css';
 		if ( $url = get_uri_from_npm($array + array( 'file' => 'slick/slick.css' ), $fallback) ) {
 			wp_enqueue_style($array['package'], $url, array(), $array['version'], 'screen');
 		}
 		$fallback = __DIR__ . '/assets/dist/slick-carousel/slick/slick-theme.css';
 		if ( $url = get_uri_from_npm($array + array( 'file' => 'slick/slick-theme.css' ), $fallback) ) {
-			wp_enqueue_style($array['package'] . '-theme', $url, array( $array['package'] ), $array['version'], 'screen');
+			wp_enqueue_style($array['package'] . '-theme', $url, filter_style_deps(array( $array['package'] )), $array['version'], 'screen');
 		}
 		$file = __DIR__ . '/assets/css/gallery-carousel.css';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_style(static::$handle, $url, array( 'gallery_common', $array['package'], $array['package'] . '-theme' ), get_file_version($file), 'screen');
+			wp_enqueue_style(static::$handle, $url, filter_style_deps(array( 'gallery_common', $array['package'], $array['package'] . '-theme' )), get_file_version($file), 'screen');
 		}
-		// js.
+		// JS.
 		$fallback = __DIR__ . '/assets/dist/slick-carousel/slick/slick.min.js';
 		if ( $url = get_uri_from_npm($array + array( 'file' => 'slick/slick.min.js' ), $fallback) ) {
 			wp_enqueue_script($array['package'], $url, array( 'jquery' ), $array['version'], true);
 		}
 		$file = __DIR__ . '/assets/js/gallery-carousel' . min_scripts() . '.js';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
+			$this->load_functions('wp-scripts');
+			wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'jquery', $array['package'] )), get_file_version($file), true);
 			wp_localize_script(static::$handle, 'gallery_carousel', array( 'handle' => static::$handle ) + $this->data['gallery_items']);
 		}
 	}

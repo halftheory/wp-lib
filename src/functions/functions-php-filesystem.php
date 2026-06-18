@@ -55,7 +55,7 @@ if ( ! function_exists('ht_basename') ) {
 			return basename($path, $suffix);
 		}
 		$path = safe_path($path);
-		$array = explode(DIRECTORY_SEPARATOR, $path);
+		$array = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
 		$result = end($array);
 		if ( $suffix && str_ends_with($result, $suffix) ) {
 			$result = preg_replace('/' . preg_quote($suffix, '/') . '$/s', '', $result, 1);
@@ -74,12 +74,20 @@ if ( ! function_exists('ht_dirname') ) {
 		}
 		if ( ! str_contains($path, DIRECTORY_SEPARATOR) ) {
 			return '.';
+		} elseif ( $path === DIRECTORY_SEPARATOR ) {
+			return $path;
 		}
-		$array = explode(DIRECTORY_SEPARATOR, $path);
-		if ( str_contains(end($array), '.') ) {
-			array_pop($array);
+		$array = explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR));
+		if ( count($array) > 0 ) {
+			for ( $i = 0; $i < $levels; $i++ ) {
+				array_pop($array);
+				if ( count($array) === 0 ) {
+					break;
+				}
+			}
 		}
-		return implode(DIRECTORY_SEPARATOR, $array);
+		$prefix = str_starts_with($path, DIRECTORY_SEPARATOR) ? DIRECTORY_SEPARATOR : '';
+		return $prefix . implode(DIRECTORY_SEPARATOR, $array);
 	}
 }
 
@@ -147,6 +155,18 @@ if ( ! function_exists('ht_file_get_contents') ) {
 		$result = maybe_specialchars_decode($result);
 		$result = remove_excess_space($result);
 		return empty($result) ? false : $result;
+	}
+}
+
+if ( ! function_exists('is_path_symlink') ) {
+	function is_path_symlink( $path ) {
+		$path = safe_path($path);
+		foreach ( get_symlinks() as $link => $real ) {
+			if ( str_starts_with($path, $link) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

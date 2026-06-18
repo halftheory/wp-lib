@@ -1,7 +1,7 @@
 <?php
 if ( ! function_exists('get_active_plugins') ) {
 	function get_active_plugins( $blog_ids = null ) {
-		// array of keys (file path) => value (plugin path).
+		// Array of keys (file path) => value (plugin path).
 		$results = array();
 		$callback = function ( $v ) {
 			return str_replace_start(trailingslashit(WP_PLUGIN_DIR), '', $v);
@@ -29,6 +29,25 @@ if ( ! function_exists('get_active_plugins') ) {
 				asort($_results);
 			}
 			$results = $_results;
+		}
+		// Plugins skipped via CLI?
+		if ( ! empty($results) && wp_doing_cli() ) {
+			if ( isset($_SERVER['argv']) && is_array($_SERVER['argv']) ) {
+				foreach ( $_SERVER['argv'] as $value ) {
+					if ( $value === '--skip-plugins' ) {
+						$results = array();
+						break;
+					} elseif ( str_starts_with($value, '--skip-plugins=') ) {
+						list(, $tmp) = explode('=', $value, 2);
+						foreach ( $results as $key => $value ) {
+							if ( $value === $tmp || str_starts_with($value, $tmp . DIRECTORY_SEPARATOR) ) {
+								unset($results[ $key ]);
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 		return $results;
 	}
@@ -66,5 +85,11 @@ if ( ! function_exists('is_public') ) {
 			}
 		}
 		return $_result;
+	}
+}
+
+if ( ! function_exists('wp_doing_cli') ) {
+	function wp_doing_cli() {
+		return defined('WP_CLI') && WP_CLI;
 	}
 }

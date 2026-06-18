@@ -108,6 +108,7 @@ class Gallery_Common extends Filters {
 		// Load CSS.
 		if ( ! wp_style_is(static::$handle) ) {
 			$file = __DIR__ . '/assets/css/gallery-common-public.css';
+			$this->load_functions('wp-theme');
 			if ( $url = get_stylesheet_uri_from_file($file) ) {
 				wp_enqueue_style(static::$handle, $url, array(), get_file_version($file), 'screen');
 			}
@@ -122,6 +123,7 @@ class Gallery_Common extends Filters {
 		}
 		$this->load_functions('wp-admin');
 		if ( admin_is_edit_screen() ) {
+			$this->load_functions('wp-theme');
 			if ( $url = get_stylesheet_uri_from_file(__DIR__ . '/assets/css/gallery-common-admin.css') ) {
 				add_editor_style($url);
 			}

@@ -19,7 +19,6 @@ class Minify extends Filters {
 			'css' => true,
 			'js' => true,
 		);
-		$this->load_functions('php-filesystem,wp-load,wp-plugin');
 		parent::__construct($autoload);
 	}
 
@@ -27,6 +26,7 @@ class Minify extends Filters {
 		// Global.
 		if ( is_public() ) {
 			// Public.
+			$this->load_functions('wp-plugin');
 			// Start buffer before HTML output.
 			$priority = array( 90 );
 			if ( function_exists('get_filter_next_priority') ) {
@@ -65,6 +65,7 @@ class Minify extends Filters {
 			'wp-optimize',
 			'wp-super-cache',
 		);
+		$this->load_functions('wp-load');
 		foreach ( get_active_plugins() as $plugin ) {
 			foreach ( $cache_plugins as $value ) {
 				if ( str_contains($plugin, $value) ) {

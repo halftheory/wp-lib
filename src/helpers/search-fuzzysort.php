@@ -109,11 +109,12 @@ class Search_Fuzzysort extends Filters {
 		if ( ! $json_url ) {
 			return;
 		}
+		$this->load_functions('wp-theme');
 		// CSS.
-		wp_enqueue_style('dashicons');
 		$file = __DIR__ . '/assets/css/search-fuzzysort.css';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_style(static::$handle, $url, array(), get_file_version($file), 'screen');
+			wp_enqueue_style('dashicons');
+			wp_enqueue_style(static::$handle, $url, array( 'dashicons' ), get_file_version($file), 'screen');
 		}
 		// JS.
 		$array = array(
@@ -126,8 +127,10 @@ class Search_Fuzzysort extends Filters {
 		}
 		$file = __DIR__ . '/assets/js/search-fuzzysort' . min_scripts() . '.js';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
+			$this->load_functions('wp-scripts');
+			wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'jquery', $array['package'] )), get_file_version($file), true);
 			// Format data.
+			$this->load_functions('wp-link-template');
 			$data = array(
 				'selector' => 'input.search-field',
 				'jsonUrl' => $json_url,
@@ -241,6 +244,7 @@ class Search_Fuzzysort extends Filters {
 
 	public function get_json_path() {
 		if ( $id = $this->get_json_id() ) {
+			$this->load_functions('wp-post');
 			return get_attachment_path($id);
 		}
 		return false;
@@ -360,6 +364,7 @@ class Search_Fuzzysort extends Filters {
 						break;
 					}
 					$link_category = taxonomy_exists('link_category');
+					$this->load_functions('wp-general-template');
 					foreach ( $links as $link ) {
 						$tmp = array(
 							'title' => $link->link_name,
@@ -394,12 +399,14 @@ class Search_Fuzzysort extends Filters {
 					if ( $id = $this->get_json_id() ) {
 						$posts_args['exclude'] = isset($posts_args['exclude']) ? array_merge(make_array($posts_args['exclude']), array( $id )) : array( $id );
 					}
+					$this->load_functions('wp-post');
 					$posts = ht_get_posts($posts_args);
 					if ( ! $posts ) {
 						break;
 					}
 					$post_type_labels = array();
 					$taxonomies = get_taxonomies(array( 'public' => true ), 'names');
+					$this->load_functions('wp-general-template');
 					foreach ( $posts as $post_id ) {
 						if ( ! is_post_publicly_viewable($post_id) ) {
 							continue;
@@ -449,6 +456,7 @@ class Search_Fuzzysort extends Filters {
 						break;
 					}
 					$taxonomy_labels = array();
+					$this->load_functions('wp-general-template');
 					foreach ( $terms as $term_id ) {
 						if ( ! is_term_publicly_viewable($term_id) ) {
 							continue;
@@ -600,6 +608,7 @@ class Search_Fuzzysort extends Filters {
 		}
 		// 4. Record the ID for later updates.
 		update_option(static::$handle . '_json', $id, false);
+		$this->load_functions('wp-post');
 		return get_attachment_path($id);
 	}
 }

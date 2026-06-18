@@ -1,6 +1,20 @@
 <?php
-if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'functions-video-common.php') ) {
-	include_once __DIR__ . DIRECTORY_SEPARATOR . 'functions-video-common.php';
+$array = array(
+	'functions-wp-media.php',
+	'functions-wp-post-template.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value) ) {
+		include_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . $value;
+	}
+}
+$array = array(
+	'functions-video-common.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
 }
 
 if ( ! function_exists('delete_post_video') ) {

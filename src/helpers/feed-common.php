@@ -79,6 +79,7 @@ class Feed_Common extends Filters {
 			return $content;
 		}
 		if ( is_feed() && headers_sent() ) {
+			$this->load_functions('wp-formatting,wp-link-template');
 			$tags = get_allowed_html_tags(array( 'data', 'br' => array(), 'img' => true ));
 			$content = wp_kses($content, $tags);
 			$content = ht_set_url_scheme($content);

@@ -98,6 +98,7 @@ class Search_Common extends Filters {
 			} else {
 				$url = home_url();
 			}
+			$this->load_functions('wp-pluggable');
 			if ( ht_wp_redirect($url) ) {
 				exit;
 			}

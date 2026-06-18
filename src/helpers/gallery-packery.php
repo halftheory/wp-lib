@@ -67,6 +67,7 @@ class Gallery_Packery extends Filters {
 			return $output;
 		}
 		// Add classes.
+		$this->load_functions('wp-html-api');
 		foreach ( array( 'gapless' ) as $value ) {
 			if ( ! isset($attr[ $value ]) ) {
 				continue;
@@ -96,24 +97,26 @@ class Gallery_Packery extends Filters {
 		if ( empty($this->data['gallery_items']) ) {
 			return;
 		}
+		$this->load_functions('wp-theme');
+		// CSS.
+		$file = __DIR__ . '/assets/css/gallery-packery.css';
+		if ( $url = get_stylesheet_uri_from_file($file) ) {
+			$this->load_functions('wp-styles');
+			wp_enqueue_style(static::$handle, $url, filter_style_deps(array( 'gallery_common' )), get_file_version($file), 'all');
+		}
+		// JS.
 		$array = array(
 			'package' => 'packery',
 			'version' => '3.0.0',
 		);
-		// css.
-		$file = __DIR__ . '/assets/css/gallery-packery.css';
-		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			$deps = wp_style_is('gallery_common') ? array( 'gallery_common' ) : array();
-			wp_enqueue_style(static::$handle, $url, $deps, get_file_version($file), 'all');
-		}
-		// js.
 		$fallback = __DIR__ . '/assets/dist/packery/dist/packery.pkgd.min.js';
 		if ( $url = get_uri_from_npm($array + array( 'file' => 'dist/packery.pkgd.min.js' ), $fallback) ) {
 			wp_enqueue_script($array['package'], $url, array( 'jquery' ), $array['version'], true);
 		}
 		$file = __DIR__ . '/assets/js/gallery-packery' . min_scripts() . '.js';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
+			$this->load_functions('wp-scripts');
+			wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'jquery', $array['package'] )), get_file_version($file), true);
 			wp_localize_script(static::$handle, 'gallery_packery', $this->data['gallery_items']);
 		}
 	}

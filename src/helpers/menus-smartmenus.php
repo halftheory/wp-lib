@@ -90,6 +90,7 @@ class Menus_Smartmenus extends Filters {
 		if ( ! has_nav_menu($this->data['menu']) ) {
 			return;
 		}
+		$this->load_functions('wp-theme');
 		$array = array(
 			'package' => 'smartmenus',
 			'version' => '2.0.0-alpha.1',
@@ -110,7 +111,8 @@ class Menus_Smartmenus extends Filters {
 		}
 		$file = __DIR__ . '/assets/js/menus-smartmenus' . min_scripts() . '.js';
 		if ( $url = get_stylesheet_uri_from_file($file) ) {
-			wp_enqueue_script(static::$handle, $url, array( 'jquery', $array['package'] ), get_file_version($file), true);
+			$this->load_functions('wp-scripts');
+			wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'jquery', $array['package'] )), get_file_version($file), true);
 			wp_localize_script(static::$handle, 'menus_smartmenus', array( 'menu' => $this->data['menu'], 'options' => $this->data['smartmenus_options'] ));
 		}
 	}
@@ -125,6 +127,7 @@ class Menus_Smartmenus extends Filters {
 		if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Walker_Nav_Menu_Smartmenus.php') ) {
 			include_once __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'Walker_Nav_Menu_Smartmenus.php';
 		}
+		$this->load_functions('wp-load');
 		$defaults = array(
 			'theme_location' => $this->data['menu'],
 			'menu_class' => 'sm-nav',
@@ -155,6 +158,7 @@ class Menus_Smartmenus extends Filters {
 			<?php
             $logo = '';
             if ( has_custom_logo() ) {
+				$this->load_functions('wp-media');
                 if ( $tmp = get_image_context('img', get_theme_mod('custom_logo'), 'thumbnail', array( 'alt' => get_bloginfo('name') )) ) {
                     $logo = $tmp . ' ';
                 }

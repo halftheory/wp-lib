@@ -11,9 +11,8 @@ abstract class Filters extends Core {
 	protected static $filters = array();
 
 	public function __construct( $autoload = false ) {
-		// Exit if accessed directly.
-		defined('ABSPATH') || exit(get_called_class());
 		// Load.
+		$this->load_functions('php,wp-load');
 		$this->add_filters_all();
 		parent::__construct($autoload);
 	}

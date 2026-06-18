@@ -13,12 +13,12 @@ class Taxonomy_Thumbnails extends Filters {
 	protected static $filters = array();
 
 	public function __construct( $autoload = true ) {
-		$this->load_functions('wp-taxonomy,taxonomy-thumbnails');
 		parent::__construct($autoload);
 	}
 
 	protected function autoload() {
 		// Global.
+		$this->load_functions('wp-taxonomy,taxonomy-thumbnails');
 		if ( ! is_public() ) {
 			// Admin.
 			$this->data['taxonomies'] = array();
@@ -68,6 +68,7 @@ class Taxonomy_Thumbnails extends Filters {
 			),
 			'numberposts' => 10,
 		);
+		$this->load_functions('wp-post');
 		$posts = ht_get_posts($args);
 		if ( ! $posts ) {
 			return;

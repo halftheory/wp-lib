@@ -14,12 +14,12 @@ class Video_Featured extends Filters {
 
 	public function __construct( $autoload = true, $post_types = null ) {
 		$this->data['post_types'] = is_array($post_types) ? $post_types : array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' )));
-		$this->load_functions('video-common,video-featured');
 		parent::__construct($autoload);
 	}
 
 	protected function autoload() {
 		// Global.
+		$this->load_functions('video-common,video-featured');
 		if ( ! is_public() ) {
 			// Admin.
 			add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 20);
@@ -45,9 +45,12 @@ class Video_Featured extends Filters {
 		}
 		$this->load_functions('wp-admin');
 		if ( admin_is_edit_screen($this->data['post_types']) ) {
+			$this->load_functions('wp-theme');
 			$file = __DIR__ . '/assets/js/video-featured-media-editor' . min_scripts() . '.js';
 			if ( $url = get_stylesheet_uri_from_file($file) ) {
-				wp_enqueue_script(static::$handle, $url, array( 'media-editor' ), get_file_version($file), true);
+				$this->load_functions('wp-scripts');
+				wp_enqueue_script('media-editor');
+				wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'media-editor' )), get_file_version($file), true);
 			}
 		}
 	}

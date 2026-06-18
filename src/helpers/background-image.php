@@ -21,6 +21,11 @@ class Background_Image extends Filters {
 			'default-repeat' => 'no-repeat',
 			'default-attachment' => 'fixed',
 		);
+		if ( empty($background_defaults) ) {
+			// Look for colors in theme data.
+	        $this->load_functions('wp-theme');
+			$background_defaults = get_theme_colors(array( 'default-color' ));
+		}
 		$this->data['background_defaults'] = wp_parse_args($background_defaults, $defaults);
 		$this->data['post_types'] = is_array($post_types) ? $post_types : array_values(array_diff(get_post_types(array( 'public' => true ), 'names'), array( 'attachment', 'revision' )));
 		parent::__construct($autoload);
@@ -70,6 +75,7 @@ class Background_Image extends Filters {
 		if ( is_singular() ) {
 			$attachment_id = (int) get_post_meta(get_the_ID(), static::$handle . '_id', true);
 			if ( $attachment_id > 0 ) {
+				$this->load_functions('wp-media');
 				if ( $tmp = get_image_context('url', $attachment_id, 'large') ) {
 					$value = $tmp;
 				}
@@ -89,9 +95,12 @@ class Background_Image extends Filters {
 		}
 		$this->load_functions('wp-admin');
 		if ( admin_is_edit_screen($this->data['post_types']) ) {
+			$this->load_functions('wp-theme');
 			$file = __DIR__ . '/assets/js/background-image-media-editor' . min_scripts() . '.js';
 			if ( $url = get_stylesheet_uri_from_file($file) ) {
-				wp_enqueue_script(static::$handle, $url, array( 'media-editor' ), get_file_version($file), true);
+				$this->load_functions('wp-scripts');
+				wp_enqueue_script('media-editor');
+				wp_enqueue_script(static::$handle, $url, filter_script_deps(array( 'media-editor' )), get_file_version($file), true);
 			}
 		}
 	}

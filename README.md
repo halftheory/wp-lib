@@ -98,6 +98,7 @@ Available helpers include:
 - taxonomy-thumbnails
 - video-common
 - video-featured
+- and many more...
 
 ## Examples
 See the following for ideas on how to use this library in your own project:
@@ -121,11 +122,11 @@ After `composer init` add the following to your `composer.json` file:
         "type": "package",
         "package": {
             "name": "halftheory/wp-lib",
-            "version": "1.0.10",
+            "version": "1.0.11",
             "source": {
                 "url": "https://github.com/halftheory/wp-lib/",
                 "type": "git",
-                "reference": "1.0.10"
+                "reference": "1.0.11"
             }
         }
     }
@@ -154,9 +155,9 @@ require __DIR__ . '/vendor/autoload.php';
 - [Slick Carousel](https://kenwheeler.github.io/slick/) (helper: `gallery-carousel`)
 - [Slicknav](https://computerwolf.github.io/SlickNav/) (helper: `menus-slicknav`)
 - [SmartMenus](https://www.smartmenus.org/) (helper: `menus-smartmenus`)
+- [wavesurfer.js](https://github.com/katspaugh/wavesurfer.js/) (helper: `audio-wavesurfer`)
 
 ## Future
 - Halftheory\Lib\Plugin class.
 - Helpers:
     - cdn
-    - infinite-scroll

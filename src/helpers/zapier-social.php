@@ -16,6 +16,7 @@ class Zapier_Social extends Filters {
 		$this->data['tag'] = $tag;
 		$this->data['taxonomy'] = $taxonomy;
 		$this->data['term'] = null;
+		$this->data['option_mail'] = static::$handle . '_mail';
 		parent::__construct($autoload);
 	}
 
@@ -130,7 +131,6 @@ class Zapier_Social extends Filters {
 		if ( ! $posts ) {
 			return;
 		}
-		$this->load_functions('wp-media,wp-embed,wp-formatting');
 		$thumbnail_args = array(
 			'min_width' => get_option('thumbnail_size_w', 0),
 			'min_height' => get_option('thumbnail_size_h', 0),
@@ -155,6 +155,7 @@ class Zapier_Social extends Filters {
 				'values' => array(),
 			),
 		);
+		$this->load_functions('wp-media,wp-embed,wp-formatting');
 		foreach ( $posts as $post ) {
 			$image = get_post_thumbnail_context('url', $post, 'large', array(), $thumbnail_args);
 			if ( ! $image ) {
@@ -185,6 +186,7 @@ class Zapier_Social extends Filters {
 			if ( $tmp !== true ) {
 				continue;
 			}
+			delete_option($this->data['option_mail']);
 			$result = array(
 				'message' => unwptexturize($message),
 				'image' => $image,
@@ -217,7 +219,6 @@ class Zapier_Social extends Filters {
 		if ( ! $posts ) {
 			return;
 		}
-		$this->load_functions('wp-media,wp-formatting,wp-post-template');
 		$excerpt_fallback_args = array(
 			'search' => array(
 				'content' => true,
@@ -238,6 +239,7 @@ class Zapier_Social extends Filters {
 				'values' => array(),
 			),
 		);
+		$this->load_functions('wp-media,wp-formatting,wp-post-template');
 		foreach ( $posts as $post ) {
 			$image = get_image_context('url', $post->ID, 'large');
 			if ( ! $image ) {
@@ -272,6 +274,7 @@ class Zapier_Social extends Filters {
 			if ( $tmp !== true ) {
 				continue;
 			}
+			delete_option($this->data['option_mail']);
 			$result = array(
 				'message' => unwptexturize($message),
 				'image' => $image,
@@ -281,10 +284,15 @@ class Zapier_Social extends Filters {
 	}
 
 	protected function zapier_mail() {
-		// Send a warning email.
+		// Send a warning email once.
+		if ( get_option($this->data['option_mail']) ) {
+			return;
+		}
 		$subject = get_bloginfo('name') . ' - ' . static::$handle . ' - ' . __('No results');
 		// Translators: URL, Tag.
 		$message = wp_sprintf(__('The Zapier Social helper was requested at %1$s but no suitable results for "%2$s" were returned.'), get_current_url(), $this->data['tag']);
-		wp_mail(get_option('admin_email'), $subject, $message);
+		if ( wp_mail(get_option('admin_email'), $subject, $message) ) {
+			update_option($this->data['option_mail'], 1);
+		}
 	}
 }

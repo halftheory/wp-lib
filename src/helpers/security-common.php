@@ -26,6 +26,7 @@ class Security_Common extends Filters {
 		if ( is_public() ) {
 			// Public.
 			add_filter('request', array( $this, 'public_request' ), 9);
+			add_filter('robots_txt', array( $this, 'public_robots_txt' ), 20, 2);
 		}
 		parent::autoload();
 	}
@@ -36,6 +37,7 @@ class Security_Common extends Filters {
 		if ( ! $this->is_filter_active(__FUNCTION__) ) {
 			return;
 		}
+		$this->load_functions('wp-pluggable');
 		if ( ht_is_user_logged_in() ) {
 			return;
 		}
@@ -93,14 +95,307 @@ class Security_Common extends Filters {
 		return $query_vars;
 	}
 
+	public function public_robots_txt( $output, $public ) {
+		if ( ! $this->is_filter_active(__FUNCTION__) ) {
+			return $output;
+		}
+		$site_url = parse_url( site_url() );
+		$path = ( ! empty( $site_url['path'] ) ) ? $site_url['path'] : '';
+		$disallow = array(
+			$path . '/wp-admin/',
+			'/cgi-bin/',
+			$path . '/wp-config.php',
+			$path . '/wp-config-sample.php',
+			$path . '/wp-cron.php',
+			$path . '/wp-links.php',
+			$path . '/wp-links-opml.php',
+			$path . '/wp-login.php',
+			$path . '/wp-mail.php',
+			$path . '/wp-settings.php',
+			$path . '/wp-signup.php',
+			$path . '/wp-trackback.php',
+			$path . '/xmlrpc.php',
+			$path . '/trackback/',
+		);
+		$allow = array(
+			$path . '/wp-admin/admin-ajax.php',
+		);
+		$string_disallow_all = "Disallow: /\n";
+		$string_user_agent_all = "User-agent: *\n";
+
+		if ( empty($output) ) {
+			$output = '';
+			// Insert bans at the top.
+			if ( ! empty($this->data['bad_user_agents']) ) {
+				foreach ( $this->data['bad_user_agents'] as $value ) {
+					$output .= "User-agent: $value\n";
+				}
+				$output .= $string_disallow_all . "\n";
+			}
+			// Selective disallow/allow.
+			$output .= $string_user_agent_all;
+			foreach ( $disallow as $value ) {
+				$output .= "Disallow: $value\n";
+			}
+			foreach ( $allow as $value ) {
+				$output .= "Allow: $value\n";
+			}
+			return $output;
+		}
+
+		// Bad user-agents.
+		if ( ! empty($this->data['bad_user_agents']) ) {
+			$bad_user_agents = $this->data['bad_user_agents'];
+			foreach ( $bad_user_agents as $key => $value ) {
+				if ( str_contains($output, "User-agent: $value\n") ) {
+					unset($bad_user_agents[ $key ]);
+				}
+			}
+			if ( ! empty($bad_user_agents) ) {
+				$tmp = '';
+				foreach ( $bad_user_agents as $value ) {
+					$tmp .= "User-agent: $value\n";
+				}
+				if ( str_contains($output, $string_disallow_all) ) {
+					// Add to existing bans.
+					$output = preg_replace('/(' . preg_quote($string_disallow_all, '/') . ')/s', $tmp . '$1', $output, 1);
+				} else {
+					// Insert bans at the top.
+					$output = $tmp . $string_disallow_all . "\n" . $output;
+				}
+			}
+		}
+
+		// Selective disallow/allow.
+		foreach ( $disallow as $key => $value ) {
+			if ( str_contains($output, "Disallow: $value\n") ) {
+				unset($disallow[ $key ]);
+			}
+		}
+		foreach ( $allow as $key => $value ) {
+			if ( str_contains($output, "Allow: $value\n") ) {
+				unset($allow[ $key ]);
+			}
+		}
+		if ( ! empty($disallow) || ! empty($allow) ) {
+			$tmp = '';
+			foreach ( $disallow as $value ) {
+				$tmp .= "Disallow: $value\n";
+			}
+			foreach ( $allow as $value ) {
+				$tmp .= "Allow: $value\n";
+			}
+			if ( str_contains($output, $string_user_agent_all) ) {
+				// Add to existing rules.
+				$output = preg_replace('/(' . preg_quote($string_user_agent_all, '/') . ')/s', '$1' . $tmp, $output, 1);
+			} else {
+				// Insert rules at the bottom.
+				$output = $output . "\n" . $string_user_agent_all . $tmp;
+			}
+		}
+
+		return $output;
+	}
+
 	// Functions.
 
 	private function bad_user_agents() {
-		return array(
+		$result = array(
+			// Hackbots, crawlers, advertising.
+			'ahrefs',
 			'cr4',
 			'libwww',
 			'Nozilla',
 			'pxyscand',
+			'AdIdxBot',
+			'AhrefsBot',
+			'MJ12bot',
+			'AdsBot-Google',
+			'AdsBot-Google-Mobile',
+			'Mediapartners-Google',
+			'IsraBot',
+			'Orthogaffe',
+			'UbiCrawler',
+			'DOC',
+			'Zao',
+			'sitecheck.internetseer.com',
+			'Zealbot',
+			'MSIECrawler',
+			'SiteSnagger',
+			'WebStripper',
+			'WebCopier',
+			'Fetch',
+			'Offline Explorer',
+			'Teleport',
+			'TeleportPro',
+			'WebZIP',
+			'linko',
+			'HTTrack',
+			'Microsoft.URL.Control',
+			'Xenu',
+			'larbin',
+			'libwww',
+			'ZyBORG',
+			'Download Ninja',
+			'fast',
+			'wget',
+			'grub-client',
+			'k2spider',
+			'NPBot',
+			'WebReaper',
+			'Webzio',
+			// https://github.com/ai-robots-txt/ai.robots.txt/blob/main/robots.txt
+			'AddSearchBot',
+			'AgentTimes',
+			'AI2Bot',
+			'AI2Bot-DeepResearchEval',
+			'Ai2Bot-Dolma',
+			'aiHitBot',
+			'amazon-kendra',
+			'Amazonbot',
+			'AmazonBuyForMe',
+			'Amzn-SearchBot',
+			'Amzn-User',
+			'Andibot',
+			'Anomura',
+			'anthropic-ai',
+			'ApifyBot',
+			'ApifyWebsiteContentCrawler',
+			'Applebot',
+			'Applebot-Extended',
+			'Aranet-SearchBot',
+			'atlassian-bot',
+			'Awario',
+			'AzureAI-SearchBot',
+			'bedrockbot',
+			'bigsur.ai',
+			'Bravebot',
+			'Brightbot',
+			'Brightbot 1.0',
+			'BuddyBot',
+			'Bytespider',
+			'CCBot',
+			'Channel3Bot',
+			'ChatGLM-Spider',
+			'ChatGPT Agent',
+			'ChatGPT-User',
+			'Claude-Code',
+			'Claude-SearchBot',
+			'Claude-User',
+			'Claude-Web',
+			'ClaudeBot',
+			'Cloudflare-AutoRAG',
+			'CloudVertexBot',
+			'Code',
+			'cohere-ai',
+			'cohere-training-data-crawler',
+			'Cotoyogi',
+			'Crawl4AI',
+			'Crawlspace',
+			'Datenbank Crawler',
+			'DeepSeekBot',
+			'Devin',
+			'Diffbot',
+			'DuckAssistBot',
+			'Echobot Bot',
+			'EchoboxBot',
+			'ExaBot',
+			'FacebookBot',
+			'facebookexternalhit',
+			'Factset_spyderbot',
+			'FirecrawlAgent',
+			'FriendlyCrawler',
+			'Gemini-Deep-Research',
+			'Google-Agent',
+			'Google-CloudVertexBot',
+			'Google-Extended',
+			'Google-Firebase',
+			'Google-Gemini-CLI',
+			'Google-NotebookLM',
+			'GoogleAgent-Mariner',
+			'GoogleOther',
+			'GoogleOther-Image',
+			'GoogleOther-Video',
+			'GPTBot',
+			'HenkBot',
+			'iAskBot',
+			'iaskspider',
+			'iaskspider/2.0',
+			'IbouBot',
+			'ICC-Crawler',
+			'ImagesiftBot',
+			'imageSpider',
+			'img2dataset',
+			'ISSCyberRiskCrawler',
+			'kagi-fetcher',
+			'Kangaroo Bot',
+			'KlaviyoAIBot',
+			'KunatoCrawler',
+			'laion-huggingface-processor',
+			'LAIONDownloader',
+			'LCC',
+			'LinerBot',
+			'Linguee Bot',
+			'LinkupBot',
+			'Manus-User',
+			'meta-externalagent',
+			'Meta-ExternalAgent',
+			'meta-externalfetcher',
+			'Meta-ExternalFetcher',
+			'meta-webindexer',
+			'MistralAI-User',
+			'MistralAI-User/1.0',
+			'MyCentralAIScraperBot',
+			'NagetBot',
+			'netEstate Imprint Crawler',
+			'newsai',
+			'NotebookLM',
+			'NovaAct',
+			'OAI-SearchBot',
+			'omgili',
+			'omgilibot',
+			'OpenAI',
+			'opencode',
+			'Operator',
+			'PanguBot',
+			'Panscient',
+			'panscient.com',
+			'Perplexity-User',
+			'PerplexityBot',
+			'PetalBot',
+			'PhindBot',
+			'Poggio-Citations',
+			'Poseidon Research Crawler',
+			'QualifiedBot',
+			'QuillBot',
+			'quillbot.com',
+			'SBIntuitionsBot',
+			'Scrapy',
+			'SemrushBot-OCOB',
+			'SemrushBot-SWA',
+			'Shap-User',
+			'ShapBot',
+			'Sidetrade indexer bot',
+			'Spider',
+			'TavilyBot',
+			'Terra Cotta',
+			'TerraCotta',
+			'Thinkbot',
+			'TikTokSpider',
+			'Timpibot',
+			'Trae',
+			'TwinAgent',
+			'VelenPublicWebCrawler',
+			'WARDBot',
+			'Webzio-Extended',
+			'webzio-extended',
+			'wpbot',
+			'WRTNBot',
+			'YaK',
+			'YandexAdditional',
+			'YandexAdditionalBot',
+			'YouBot',
+			'ZanistaBot',
 			// https://github.com/mitchellkrogza/apache-ultimate-bad-bot-blocker/blob/master/_generator_lists/bad-user-agents.list
 			'01h4x.com',
 			'360Spider',
@@ -109,6 +404,7 @@ class Security_Common extends Filters {
 			'80legs',
 			'ADmantX',
 			'AIBOT',
+			'AIWebIndex',
 			'ALittle Client',
 			'ASPSeek',
 			'Abonti',
@@ -118,9 +414,12 @@ class Security_Common extends Filters {
 			'AdsTxtCrawlerTP',
 			'AfD-Verbotsverfahren',
 			'AhrefsBot',
+			'Ai2Bot',
 			'AiHitBot',
 			'Aipbot',
 			'Alexibot',
+			'Aliyun',
+			'AliyunSecBot',
 			'AllSubmitter',
 			'Alligator',
 			'AlphaBot',
@@ -503,6 +802,7 @@ class Security_Common extends Filters {
 			'RocketCrawler',
 			'Rogerbot',
 			'SBIder',
+			'SEBot-WA',
 			'SEOkicks',
 			'SEOkicks-Robot',
 			'SEOlyt',
@@ -510,6 +810,7 @@ class Security_Common extends Filters {
 			'SEOprofiler',
 			'SEOstats',
 			'SISTRIX',
+			'SMARTSEO-checker',
 			'SMTBot',
 			'SalesIntelligent',
 			'ScanAlert',
@@ -585,6 +886,7 @@ class Security_Common extends Filters {
 			'Szukacz',
 			'T0PHackTeam',
 			'T8Abot',
+			'TMP',
 			'Teleport',
 			'TeleportPro',
 			'Telesoft',
@@ -696,8 +998,10 @@ class Security_Common extends Filters {
 			'ZumBot',
 			'ZyBorg',
 			'adscanner',
+			'allenai.org',
 			'anthropic-ai',
 			'archive.org_bot',
+			'aria2',
 			'arquivo-web-crawler',
 			'arquivo.pt',
 			'autoemailspider',
@@ -715,12 +1019,14 @@ class Security_Common extends Filters {
 			'crawler4j',
 			'dataforseo.com',
 			'dataforseobot',
+			'dataprovider',
 			'demandbase-bot',
 			'domainsproject.org',
 			'eCatch',
 			'evc-batch',
 			'everyfeed-spider',
 			'facebookscraper',
+			'fasthttp',
 			'gopher',
 			'heritrix',
 			'imagesift.com',
@@ -729,6 +1035,8 @@ class Security_Common extends Filters {
 			'ips-agent',
 			'isitwp.com',
 			'iubenda-radar',
+			'l9scan',
+			'leakix',
 			'linkdexbot',
 			'linkfluence',
 			'lwp-request',
@@ -760,11 +1068,14 @@ class Security_Common extends Filters {
 			'sexsearcher',
 			'sitechecker.pro',
 			'siteripz',
+			'smart-seo-tools.sbs',
 			'sogouspider',
 			'sp_auditbot',
 			'spyfu',
 			'sysscan',
 			'tAkeOut',
+			'terrabot-owned-you',
+			'trafilatura',
 			'trendiction.com',
 			'trendiction.de',
 			'ubermetrics-technologies.com',
@@ -779,11 +1090,13 @@ class Security_Common extends Filters {
 			'zauba.io',
 			'zgrab',
 		);
+		sort($result);
+		return array_unique($result);
 	}
 
 	private function bad_usernames() {
 		list($host,) = explode('.', wp_parse_url(home_url(), PHP_URL_HOST));
-		return array(
+		$result = array(
 			$host,
 			'admin',
 			'admindemo',
@@ -822,6 +1135,8 @@ class Security_Common extends Filters {
 			'wpincludes',
 			'www',
 		);
+		sort($result);
+		return array_unique($result);
 	}
 
 	private function die() {

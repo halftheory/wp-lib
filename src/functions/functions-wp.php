@@ -1,9 +1,8 @@
 <?php
-if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'functions-php.php') ) {
-	include_once __DIR__ . DIRECTORY_SEPARATOR . 'functions-php.php';
-}
 $array = array(
+	'functions-php.php',
 	// wp-includes/[basename].php
+	// 'functions-wp-admin.php',
 	'functions-wp-capabilities.php',
 	'functions-wp-embed.php',
 	'functions-wp-formatting.php',
@@ -23,7 +22,9 @@ $array = array(
 	'functions-wp-post.php',
 	'functions-wp-query.php',
 	'functions-wp-rest-api.php',
+	'functions-wp-scripts.php',
 	'functions-wp-shortcodes.php',
+	'functions-wp-styles.php',
 	'functions-wp-taxonomy.php',
 	'functions-wp-template.php',
 	'functions-wp-theme.php',

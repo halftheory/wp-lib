@@ -42,6 +42,7 @@ class No_Authors extends Filters {
 			return;
 		}
 		if ( is_author() ) {
+			$this->load_functions('wp-post,wp-pluggable');
 			// Redirect author pages.
 			$url = null;
 			if ( $tmp = get_post_posts_page() ) {

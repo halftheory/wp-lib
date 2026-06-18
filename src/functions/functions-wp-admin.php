@@ -1,6 +1,13 @@
 <?php
-if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . 'functions-wp.php') ) {
-	include_once __DIR__ . DIRECTORY_SEPARATOR . 'functions-wp.php';
+$array = array(
+	'functions-wp-load.php',
+	'functions-wp-media.php',
+	'functions-wp-post.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
 }
 
 // Everything referenced in wp-admin/*/*.php
@@ -340,7 +347,7 @@ if ( ! function_exists('attachment_move') ) {
 			return false;
 		}
 
-		// Get urls.
+		// Get URLs.
 		$post_old->permalink = get_permalink($post_old);
 		foreach ( $files as $key => $array ) {
 			$files[ $key ]['source_url'] = set_url_scheme(str_replace_start(trailingslashit($upload_dir['basedir']), trailingslashit($upload_dir['baseurl']), $array['source']), 'https');
@@ -453,7 +460,7 @@ if ( ! function_exists('attachment_move') ) {
 		$post_new = get_post($attachment_id);
 		$post_new->permalink = get_permalink($post_new);
 
-		// Replace urls in post_content, post_excerpt.
+		// Replace URLs in post_content, post_excerpt.
 		$search_basenames = array();
 		if ( $post_old->post_name !== $post_new->post_name ) {
 			$search_basenames[] = $post_old->post_name;
@@ -605,6 +612,34 @@ if ( ! function_exists('get_current_screen_id') ) {
 	}
 }
 
+if ( ! function_exists('ht_admin_notices') ) {
+	function ht_admin_notices( $action = 'get', $message = '', $class = 'success', $is_dismissible = true, $conditions = array() ) {
+		// Requires helper 'admin-common'.
+		static $_data = array();
+		switch ( $action ) {
+			case 'clear':
+				$_data = array();
+				return true;
+				break;
+
+			case 'set':
+				if ( $message ) {
+					$classes = array(
+						'notice',
+						$class ? 'notice-' . str_replace('notice-', '', $class) : null,
+						$is_dismissible ? 'is-dismissible' : null,
+					);
+					$_data[] = array( 'message' => $message, 'classes' => array_unique(array_filter($classes)), 'conditions' => make_array($conditions) );
+				}
+				break;
+
+			default:
+				break;
+		}
+		return empty($_data) ? false : $_data;
+	}
+}
+
 if ( ! function_exists('ht_remove_menu_page') ) {
 	function ht_remove_menu_page( $menu_slug ) {
 		$result = false;
@@ -615,9 +650,9 @@ if ( ! function_exists('ht_remove_menu_page') ) {
 			return $result;
 		}
 		foreach ( $GLOBALS['menu'] as $value ) {
-			// array key 2 most exact - separators, plugins, etc.
+			// Array key 2 most exact - separators, plugins, etc.
 			if ( $value[2] === $menu_slug ) {
-				// remove all.
+				// Remove all.
 				remove_menu_page($value[2]);
 				if ( isset($GLOBALS['submenu'], $GLOBALS['submenu'][ $value[2] ]) ) {
 					foreach ( $GLOBALS['submenu'][ $value[2] ] as $subvalue ) {
@@ -666,5 +701,41 @@ if ( ! function_exists('ht_wp_filesystem') ) {
 		}
 		WP_Filesystem($args);
 		return $wp_filesystem;
+	}
+}
+
+if ( ! function_exists('rmsysfiles') ) {
+	function rmsysfiles( $folder, $levels = 50, $exclusions = array() ) {
+		if ( ! is_dir($folder) ) {
+			return false;
+		}
+		$tmp = list_files($folder, $levels, $exclusions, true);
+		if ( empty($tmp) ) {
+			return false;
+		}
+		$array = array(
+			'.DS_Store',
+			'desktop.ini',
+			'Desktop.ini',
+			'ehthumbs.db',
+			'thumbs.db',
+			'Thumbs.db',
+			'folder.jpg',
+		);
+		$callback = function ( $value ) use ( $array ) {
+			$basename = ht_basename($value);
+			return str_starts_with($basename, '._') || in_array($basename, $array, true);
+		};
+		$tmp = array_filter($tmp, $callback);
+		set_symlinks($folder);
+		$tmp = array_filter_not($tmp, 'is_path_symlink');
+		if ( empty($tmp) ) {
+			return false;
+		}
+        $wp_filesystem = ht_wp_filesystem('direct');
+		foreach ( $tmp as $value ) {
+			$wp_filesystem->delete($value);
+		}
+		return $tmp;
 	}
 }

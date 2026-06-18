@@ -1,37 +1,76 @@
 <?php
 if ( ! function_exists('get_tag_attributes') ) {
-	function get_tag_attributes() {
-		return array(
-			'action',
-			'alt',
-			'border',
-			'class',
-			'cols',
-			'content',
-			'data-*',
-			'datetime',
-			'height',
-			'href',
-			'id',
-			'itemid',
-			'itemprop',
-			'itemscope',
-			'itemtype',
-			'lang',
-			'maxlength',
-			'method',
-			'name',
-			'rel',
-			'role',
-			'rows',
-			'src',
-			'style',
-			'target',
-			'title',
-			'type',
-			'value',
-			'width',
-		);
+	function get_tag_attributes( $tag = null, $append_standard = true ) {
+		$result = array();
+		if ( $tag ) {
+			switch ( (string) $tag ) {
+				case 'form':
+					$result = array(
+						// Form.
+						'action',
+						'checked',
+						'cols',
+						'disabled',
+						'for',
+						'hidden',
+						'label',
+						'maxlength',
+						'method',
+						'multiple',
+						'onblur',
+						'onchange',
+						'oncontextmenu',
+						'onfocus',
+						'oninput',
+						'oninvalid',
+						'onreset',
+						'onsearch',
+						'onselect',
+						'onsubmit',
+						'readonly',
+						'rows',
+						'size',
+						'step',
+					);
+					break;
+
+				default:
+					break;
+			}
+		}
+		if ( $append_standard ) {
+			$array = array(
+				'alt',
+				'border',
+				'class',
+				'content',
+				'data-*',
+				'datetime',
+				'dir',
+				'height',
+				'href',
+				'id',
+				'itemid',
+				'itemprop',
+				'itemscope',
+				'itemtype',
+				'lang',
+				'max',
+				'min',
+				'name',
+				'rel',
+				'role',
+				'src',
+				'style',
+				'target',
+				'title',
+				'type',
+				'value',
+				'width',
+			);
+			$result = array_merge($result, $array);
+		}
+		return $result;
 	}
 }
 
@@ -96,18 +135,15 @@ if ( ! function_exists('maybe_specialchars_decode') ) {
 		if ( empty(trim($string)) ) {
 			return $string;
 		}
-		$decode = null;
 		$flags = null;
 		if ( str_contains($string, '&#039;') ) {
-			$decode = true;
 			$flags = ENT_QUOTES;
 		} elseif ( str_contains($string, '&lt;') ) {
 			if ( substr_count($string, '&lt;') > substr_count($string, '<') || preg_match('/&lt;\/[\s]*[\w]+[\s]*&gt;/is', $string) ) {
-				$decode = true;
 				$flags = ENT_NOQUOTES;
 			}
 		}
-		if ( $decode ) {
+		if ( ! is_null($flags) ) {
 			$string = html_entity_decode($string, $flags, get_encoding());
 			if ( function_exists('wp_specialchars_decode') ) {
 				$string = wp_specialchars_decode($string, $flags);
@@ -165,7 +201,7 @@ if ( ! function_exists('remove_excess_space') ) {
 if ( ! function_exists('replace_spaces') ) {
 	function replace_spaces( $string ) {
 		// Replace weird spaces.
-		return is_string($string) ? str_replace(array( '&nbsp;', '&#160;', "\xc2\xa0", ' ' ), ' ', $string) : $string;
+		return is_string($string) ? str_replace(array( '&nbsp;', '&#160;', "\xc2\xa0", ' ', ' ' ), ' ', $string) : $string;
 	}
 }
 
@@ -188,9 +224,33 @@ if ( ! function_exists('replace_tags') ) {
 	}
 }
 
+if ( ! function_exists('str_contains') ) {
+	function str_contains( $haystack, $needle ) {
+		return strpos( (string) $haystack, (string) $needle) !== false;
+	}
+}
+
+if ( ! function_exists('str_ends_with') ) {
+	function str_ends_with( $haystack, $needle ) {
+		$haystack = (string) $haystack;
+		$needle = (string) $needle;
+		if ( '' === $haystack ) {
+			return '' === $needle;
+		}
+		$len = strlen($needle);
+		return substr($haystack, -$len, $len) === $needle;
+	}
+}
+
 if ( ! function_exists('str_replace_start') ) {
 	function str_replace_start( $pattern, $replacement, $subject ) {
 		return preg_replace('/^' . preg_quote($pattern, '/') . '/s', $replacement, $subject, 1);
+	}
+}
+
+if ( ! function_exists('str_starts_with') ) {
+	function str_starts_with( $haystack, $needle ) {
+		return strpos( (string) $haystack, (string) $needle) === 0;
 	}
 }
 

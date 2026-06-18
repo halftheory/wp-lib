@@ -1,4 +1,15 @@
 <?php
+$array = array(
+	'functions-wp-general-template.php',
+	'functions-wp-media.php',
+	'functions-wp-post-template.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_post_thumbnail_context') ) {
 	function get_post_thumbnail_context( $context, $post = null, $size = 'medium', $attr = array(), $fallback_args = array() ) {
 		$post = get_post($post);

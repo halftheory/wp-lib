@@ -24,6 +24,9 @@ abstract class Core {
 	}
 
 	public function __construct( $autoload = false ) {
+		// Exit if accessed directly.
+		defined('ABSPATH') || exit(get_called_class());
+		// Load.
 		$this->data['_autoload'] = $autoload;
 		$this->set_handle();
 		if ( $autoload === true ) {

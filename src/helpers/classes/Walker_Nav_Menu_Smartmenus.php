@@ -94,6 +94,9 @@ class Walker_Nav_Menu_Smartmenus extends Walker_Nav_Menu {
 		 * @param int      $depth     Depth of menu item. Used for padding.
 		 */
 		$args = apply_filters( 'nav_menu_item_args', $args, $menu_item, $depth );
+		if ( ! is_object($args) ) {
+			return;
+		}
 
 		/**
 		 * Filters the CSS classes applied to a menu item's list item element.

@@ -1,11 +1,21 @@
 <?php
+$array = array(
+	'functions-wp-functions.php',
+	'functions-wp-shortcodes.php',
+);
+foreach ( $array as $value ) {
+	if ( is_readable(__DIR__ . DIRECTORY_SEPARATOR . $value) ) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . $value;
+	}
+}
+
 if ( ! function_exists('get_allowed_html_tags') ) {
 	function get_allowed_html_tags( $tags = array(), $format = 'wp_kses' ) {
 		$all_attributes = array_fill_keys(get_tag_attributes(), true);
 		$results = array();
 		foreach ( make_array($tags) as $key => $value ) {
 			$tmp = null;
-			// specific tag => attributes.
+			// Specific tag => attributes.
 			if ( ! is_numeric($key) ) {
 				if ( $value === '*' || is_true($value) ) {
 					$tmp = array( $key => $all_attributes );
@@ -15,9 +25,9 @@ if ( ! function_exists('get_allowed_html_tags') ) {
 				$results = array_merge($tmp, $results);
 				continue;
 			}
-			// collections.
+			// Collections.
 			switch ( $value ) {
-				// add wp values - https://developer.wordpress.org/reference/functions/wp_kses_allowed_html/
+				// Add wp values - https://developer.wordpress.org/reference/functions/wp_kses_allowed_html/
 				case 'post':
 				case 'user_description':
 				case 'pre_user_description':
@@ -89,7 +99,7 @@ if ( ! function_exists('get_allowed_html_tags') ) {
 						'option',
 						'optgroup',
 					);
-					$tmp = array_fill_keys($array, $all_attributes);
+					$tmp = array_fill_keys($array, array_fill_keys(get_tag_attributes($value), true));
 					break;
 				case 'frame':
 					$array = array(
@@ -158,7 +168,7 @@ if ( ! function_exists('get_allowed_html_tags') ) {
 					);
 					$tmp = array_fill_keys($array, $all_attributes);
 					break;
-				// custom.
+				// Custom.
 				case 'text':
 					$tmp = array_fill_keys(get_text_tags(), $all_attributes);
 					break;

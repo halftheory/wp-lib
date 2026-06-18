@@ -571,6 +571,9 @@ class Walker_Nav_Menu_Social extends Walker_Nav_Menu {
 		 * @param int      $depth     Depth of menu item. Used for padding.
 		 */
 		$args = apply_filters( 'nav_menu_item_args', $args, $menu_item, $depth );
+		if ( ! is_object($args) ) {
+			return;
+		}
 
 		// Get the icon classes.
 		$fa_classes = $this->get_fa_classes($menu_item);
@@ -638,7 +641,7 @@ class Walker_Nav_Menu_Social extends Walker_Nav_Menu {
 
 		// Replace title with icon.
 		if ( $fa_classes ) {
-			$title = '<span class="screen-reader-text">"' . esc_html($title) . '</span><i class="' . esc_attr(implode(' ', $fa_classes)) . '" title="' . esc_attr($title) . '"></i>';
+			$title = '<span class="screen-reader-text">' . esc_html($title) . '</span><i class="' . esc_attr(implode(' ', $fa_classes)) . '" title="' . esc_attr($title) . '"></i>';
 		}
 
 		/**

@@ -9,8 +9,18 @@ if ( ! function_exists('get_current_url') ) {
 				}
 			}
 			if ( empty($_url) ) {
-				$_url = is_ssl() ? 'https://' : 'http://';
-				$_url .= isset($_SERVER['HTTP_HOST']) ? stripslashes($_SERVER['HTTP_HOST']) : 'localhost';
+				if ( function_exists('get_home_url') ) {
+					$_url = get_home_url();
+				} else {
+					$_url = is_ssl() ? 'https://' : 'http://';
+					if ( isset($_SERVER['HTTP_HOST']) ) {
+						$_url .= stripslashes($_SERVER['HTTP_HOST']);
+					} elseif ( isset($_SERVER['SERVER_ADDR']) ) {
+						$_url .= stripslashes($_SERVER['SERVER_ADDR']);
+					} else {
+						$_url .= 'localhost';
+					}
+				}
 				if ( isset($_SERVER['REQUEST_URI']) ) {
 					$_url .= stripslashes($_SERVER['REQUEST_URI']);
 				} elseif ( isset($_SERVER['PHP_SELF']) ) {
@@ -61,6 +71,8 @@ if ( ! function_exists('is_localhost') ) {
 				if ( str_starts_with($host, 'localhost') || str_ends_with($host, '.local') || str_ends_with($host, '.test') ) {
 					$_result = true;
 				}
+			} elseif ( isset($_SERVER['SERVER_ADDR']) && str_starts_with(stripslashes($_SERVER['SERVER_ADDR']), '127.0.0.1') ) {
+				$_result = true;
 			}
 		}
 		return $_result;
