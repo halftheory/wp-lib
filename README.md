@@ -122,11 +122,11 @@ After `composer init` add the following to your `composer.json` file:
         "type": "package",
         "package": {
             "name": "halftheory/wp-lib",
-            "version": "1.0.11",
+            "version": "1.0.12",
             "source": {
                 "url": "https://github.com/halftheory/wp-lib/",
                 "type": "git",
-                "reference": "1.0.11"
+                "reference": "1.0.12"
             }
         }
     }

@@ -105,9 +105,9 @@ class Admin_Common extends Filters {
 		remove_action('admin_notices', 'maintenance_nag', 10);
 		if ( is_multisite() ) {
 			remove_action('admin_notices', 'site_admin_notice');
-			remove_action('network_admin_notices', 'site_admin_notice');
 			remove_action('network_admin_notices', 'update_nag', 3);
 			remove_action('network_admin_notices', 'maintenance_nag', 10);
+			remove_action('network_admin_notices', 'site_admin_notice');
 		}
 		// Disable footer.
 		add_filter('admin_footer_text', '__return_empty_string', 100);
